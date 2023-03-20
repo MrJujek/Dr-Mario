@@ -1,17 +1,9 @@
 {
-    "name": "repo",
+    "name": "zuzel",
     "version": "1.0.0",
-    "main": "./build/server.js",
-    "repository": "https://github.com/",
-    "author": "jdworzycki",
+    "main": "src/index.js",
     "license": "MIT",
     "scripts": {
-        "build": "npx tsc",
-        "start": "node build/server.js",
-        "dev": "concurrently \"npx tsc --watch\" \"nodemon -q --ignore ./files/ build/server.js\""
-    },
-    "devDependencies": {
-        "nodemon": "^2.0.20",
-        "concurrently": "^7.6.0"
+        "start": "tsc --watch "
     }
 }
