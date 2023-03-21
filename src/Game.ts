@@ -13,14 +13,7 @@ interface viruses {
 const virusColors = [
     "red",
     "blue",
-    "yellow",
-    "green",
-    "purple",
-    "orange",
-    "cyan",
-    "pink",
-    "brown",
-    "black"
+    "yellow"
 ];
 
 export default class Game {
@@ -40,12 +33,14 @@ export default class Game {
         for (let i = 0; i < (this.level + 2 > 10 ? 10 : this.level + 2); i++) {
             let virusX = Math.floor(Math.random() * 8);
             let virusY = Math.floor(Math.random() * 8) + 8;
-            let virusColor = virusColors[Math.floor(Math.random() * 10)];
+            let virusColor = virusColors[Math.floor(Math.random() * virusColors.length)];
 
-            while (this.board[virusX][virusY] !== 0) {
-                virusX = Math.floor(Math.random() * 8);
-                virusY = Math.floor(Math.random() * 16);
+            while (this.board[virusY][virusX] != 0) {
+                virusX = Math.floor(Math.random() * 7);
+                virusY = Math.floor(Math.random() * 7) + 8;
             }
+
+            this.board[virusY][virusX] = 1;
 
             this.viruses.push({
                 color: virusColor,
@@ -54,6 +49,8 @@ export default class Game {
                     y: virusY
                 }
             });
+
+            (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
         }
         console.log(this.viruses.length);
         console.log(this.viruses);
