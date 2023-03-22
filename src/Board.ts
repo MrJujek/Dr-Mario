@@ -31,3 +31,11 @@ export default class Board {
         return this.board;
     }
 }
+
+/*
+    0 - puste
+    1 - wirus
+    2 - lek czerwony
+    3 - lek niebieski
+    4 - lek żółty
+*/
