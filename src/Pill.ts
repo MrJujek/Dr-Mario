@@ -35,15 +35,15 @@ export default class Pill {
             firstElement: {
                 color: this.pillColors[0],
                 position: {
-                    x: 0,
+                    x: 3,
                     y: 0
                 }
             },
             secondElement: {
                 color: this.pillColors[1],
                 position: {
-                    x: 0,
-                    y: 1
+                    x: 4,
+                    y: 0
                 }
             },
         }

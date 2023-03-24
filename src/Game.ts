@@ -91,7 +91,23 @@ export default class Game {
 
         if (this.isPillOnBoard === false) {
             const pill = new Pill().getPill();
-            console.log(pill.firstElement.position);
+
+            let firstPillElement = document.createElement("div");
+            firstPillElement.id = "pill_first";
+            firstPillElement.classList.add("pill");
+            firstPillElement.style.top = `${pill.firstElement.position.y * 50}px`;
+            firstPillElement.style.left = `${pill.firstElement.position.x * 50}px`;
+            firstPillElement.style.backgroundColor = pill.firstElement.color;
+
+            let secondPillElement = document.createElement("div");
+            secondPillElement.id = "pill_second";
+            secondPillElement.classList.add("pill");
+            secondPillElement.style.top = `${pill.secondElement.position.y * 50}px`;
+            secondPillElement.style.left = `${pill.secondElement.position.x * 50}px`;
+            secondPillElement.style.backgroundColor = pill.secondElement.color;
+
+            (document.getElementById("main") as HTMLElement).append(firstPillElement);
+            (document.getElementById("main") as HTMLElement).append(secondPillElement);
 
             this.isPillOnBoard = true;
         }
@@ -106,17 +122,20 @@ export default class Game {
             // Math.min() is used here to make sure the element stops at exactly 200px
             const count = Math.min(0.1 * elapsed, 200);
             //this.stepData.element.style.transform = `translateX(${count}px)`;
-            if (count === 200)
+            if (count === 200) {
                 this.stepData.done = true;
+            }
         }
 
-        if (elapsed < 2000) {
+        if (elapsed < 1000) {
             //console.log("elapsed: " + elapsed);
 
-            // Stop the animation after 2 seconds
-            this.stepData.previousTimeStamp = timestamp;
+            // Stop the animation after 1 seconds
+
             if (!this.stepData.done) {
                 window.requestAnimationFrame(this.step.bind(this));
+            } else {
+                this.stepData.previousTimeStamp = timestamp;
             }
         }
     }

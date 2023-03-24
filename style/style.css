@@ -9,6 +9,7 @@
   position: relative;
 }
 
+.pill,
 .square {
   position: absolute;
   width: 50px;
