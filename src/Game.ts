@@ -12,7 +12,6 @@ interface viruses {
 }
 
 interface StepData {
-    element: HTMLElement | undefined;
     start: number | undefined;
     previousTimeStamp: number | undefined;
     done: boolean;
@@ -38,7 +37,6 @@ export default class Game {
         this.viruses = [];
         this.level = 1;
         this.stepData = {
-            element: undefined,
             start: undefined,
             previousTimeStamp: undefined,
             done: false
@@ -54,7 +52,7 @@ export default class Game {
             this.generateViruses();
         }
 
-        window.requestAnimationFrame(this.step.bind(this));
+        window.requestAnimationFrame(this.step);
     }
 
     generateViruses() {
@@ -82,33 +80,16 @@ export default class Game {
 
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
         }
-        console.log(this.viruses.length);
-        console.log(this.viruses);
+        //console.log(this.viruses.length);
+        //console.log(this.viruses);
     }
 
-    step(timestamp: number) {
-        console.log("Game step");
+    step = (timestamp: number) => {
+        //console.log("Game step");
+        //console.log(this.stepData);
 
         if (this.isPillOnBoard === false) {
-            const pill = new Pill().getPill();
-
-            let firstPillElement = document.createElement("div");
-            firstPillElement.id = "pill_first";
-            firstPillElement.classList.add("pill");
-            firstPillElement.style.top = `${pill.firstElement.position.y * 50}px`;
-            firstPillElement.style.left = `${pill.firstElement.position.x * 50}px`;
-            firstPillElement.style.backgroundColor = pill.firstElement.color;
-
-            let secondPillElement = document.createElement("div");
-            secondPillElement.id = "pill_second";
-            secondPillElement.classList.add("pill");
-            secondPillElement.style.top = `${pill.secondElement.position.y * 50}px`;
-            secondPillElement.style.left = `${pill.secondElement.position.x * 50}px`;
-            secondPillElement.style.backgroundColor = pill.secondElement.color;
-
-            (document.getElementById("main") as HTMLElement).append(firstPillElement);
-            (document.getElementById("main") as HTMLElement).append(secondPillElement);
-
+            this.getPill();
             this.isPillOnBoard = true;
         }
 
@@ -116,27 +97,66 @@ export default class Game {
             this.stepData.start = timestamp;
         }
 
+        let firstElement = document.getElementById("pill_first") as HTMLElement;
+        let secondElement = document.getElementById("pill_second") as HTMLElement;
+
         const elapsed = timestamp - this.stepData.start;
+        //console.log("elapsed: " + elapsed);
+
 
         if (this.stepData.previousTimeStamp !== timestamp) {
             // Math.min() is used here to make sure the element stops at exactly 200px
-            const count = Math.min(0.1 * elapsed, 200);
-            //this.stepData.element.style.transform = `translateX(${count}px)`;
-            if (count === 200) {
-                this.stepData.done = true;
+            const count = Math.min(Math.round(0.05 * elapsed * 10) / 10, 50); //Math.round(0.05 * elapsed * 10) / 10
+            firstElement.style.transform = `translateY(${count}px)`;
+            secondElement.style.transform = `translateY(${count}px)`;
+
+            if (count === 1000) {
+                //this.stepData.done = true;
             }
         }
 
-        if (elapsed < 1000) {
-            //console.log("elapsed: " + elapsed);
+        if (elapsed > 1000) {
+            console.log("powyzej sekundy");
 
-            // Stop the animation after 1 seconds
+            firstElement.style.top = `${parseFloat(firstElement.style.top) + 50}px`;
+            secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
+            firstElement.style.transform = `translateY(0px)`;
+            secondElement.style.transform = `translateY(0px)`;
 
-            if (!this.stepData.done) {
-                window.requestAnimationFrame(this.step.bind(this));
-            } else {
-                this.stepData.previousTimeStamp = timestamp;
-            }
+            this.stepData.previousTimeStamp = timestamp;
+            this.stepData.start = this.stepData.previousTimeStamp;
+
+            window.requestAnimationFrame(this.step);
+
+        } else {
+            window.requestAnimationFrame(this.step);
         }
     }
+
+    getPill() {
+        const pill = new Pill().getPill();
+
+        let firstPillElement = document.createElement("div");
+        firstPillElement.id = "pill_first";
+        firstPillElement.classList.add("pill");
+        firstPillElement.style.top = `${pill.firstElement.position.y * 50}px`;
+        firstPillElement.style.left = `${pill.firstElement.position.x * 50}px`;
+        firstPillElement.style.backgroundColor = pill.firstElement.color;
+
+        let secondPillElement = document.createElement("div");
+        secondPillElement.id = "pill_second";
+        secondPillElement.classList.add("pill");
+        secondPillElement.style.top = `${pill.secondElement.position.y * 50}px`;
+        secondPillElement.style.left = `${pill.secondElement.position.x * 50}px`;
+        secondPillElement.style.backgroundColor = pill.secondElement.color;
+
+        (document.getElementById("main") as HTMLElement).append(firstPillElement);
+        (document.getElementById("main") as HTMLElement).append(secondPillElement);
+    }
 }
+
+
+/*
+math min pill y
+pill y
+*/
