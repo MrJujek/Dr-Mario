@@ -55,4 +55,6 @@ export default class Pill {
 
         return this.pill;
     }
-}
+};
+
+export { PillInterface };

@@ -1,5 +1,5 @@
 import Board from "./Board.js";
-import Pill from "./Pill.js";
+import Pill, { PillInterface } from "./Pill.js";
 
 interface virusPosition {
     x: number;
@@ -29,6 +29,8 @@ export default class Game {
     viruses: viruses[];
     stepData: StepData;
     isPillOnBoard: boolean;
+    pill: PillInterface | null
+
     constructor() {
         console.log("Game constructor");
 
@@ -41,8 +43,7 @@ export default class Game {
             previousTimeStamp: undefined,
             done: false
         }
-
-        console.table(this.board);
+        this.pill = null
     }
 
     start() {
@@ -89,8 +90,11 @@ export default class Game {
         //console.log(this.stepData);
 
         if (this.isPillOnBoard === false) {
-            this.getPill();
+            this.pill = this.getPill();
             this.isPillOnBoard = true;
+            this.stepData.done = false
+
+            console.log(this.pill!.firstElement.position.y);
         }
 
         if (this.stepData.start === undefined) {
@@ -103,20 +107,31 @@ export default class Game {
         const elapsed = timestamp - this.stepData.start;
         //console.log("elapsed: " + elapsed);
 
-
         if (this.stepData.previousTimeStamp !== timestamp) {
             // Math.min() is used here to make sure the element stops at exactly 200px
             const count = Math.min(Math.round(0.05 * elapsed * 10) / 10, 50); //Math.round(0.05 * elapsed * 10) / 10
             firstElement.style.transform = `translateY(${count}px)`;
             secondElement.style.transform = `translateY(${count}px)`;
-
-            if (count === 1000) {
-                //this.stepData.done = true;
-            }
         }
 
         if (elapsed > 1000) {
-            console.log("powyzej sekundy");
+            //console.log("powyzej sekundy");
+
+            this.pill!.firstElement.position.y++;
+            this.pill!.secondElement.position.y++;
+
+            console.log("this.pill!.firstElement.position.y", this.pill!.firstElement.position.y);
+            console.log("this.pill!.secondElement.position.y", this.pill!.secondElement.position.y);
+
+            if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
+                console.log("end of board");
+                this.stepData.done = true;
+            } else {
+                if (this.board[this.pill!.firstElement.position.y + 1][this.pill!.firstElement.position.x] != 0 || this.board[this.pill!.secondElement.position.y + 1][this.pill!.secondElement.position.x] != 0) {
+                    console.log("something is under");
+                    this.stepData.done = true;
+                }
+            }
 
             firstElement.style.top = `${parseFloat(firstElement.style.top) + 50}px`;
             secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
@@ -125,12 +140,24 @@ export default class Game {
 
             this.stepData.previousTimeStamp = timestamp;
             this.stepData.start = this.stepData.previousTimeStamp;
-
-            window.requestAnimationFrame(this.step);
-
-        } else {
-            window.requestAnimationFrame(this.step);
         }
+
+        if (this.stepData.done == true) {
+            this.isPillOnBoard = false;
+
+            this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 1;
+            this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 1;
+
+            (document.getElementById(`square_${this.pill!.firstElement.position.y}-${this.pill!.firstElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.firstElement.color;
+            (document.getElementById(`square_${this.pill!.secondElement.position.y}-${this.pill!.secondElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.secondElement.color;
+
+            firstElement.remove();
+            secondElement.remove();
+
+            this.pill = null;
+        }
+
+        window.requestAnimationFrame(this.step);
     }
 
     getPill() {
@@ -152,6 +179,8 @@ export default class Game {
 
         (document.getElementById("main") as HTMLElement).append(firstPillElement);
         (document.getElementById("main") as HTMLElement).append(secondPillElement);
+
+        return pill;
     }
 }
 

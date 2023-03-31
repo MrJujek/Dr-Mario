@@ -1,5 +1,6 @@
 export default class Board {
     board: number[][];
+    
     constructor(columns: number, rows: number) {
         this.board = [[]];
 
@@ -25,6 +26,8 @@ export default class Board {
                 (document.getElementById("main") as HTMLElement).appendChild(square);
             }
         }
+        (document.getElementById("main") as HTMLElement).style.width = `${columns * 50}px`;
+        (document.getElementById("main") as HTMLElement).style.height = `${rows * 50}px`;
     }
 
     getBoard() {
