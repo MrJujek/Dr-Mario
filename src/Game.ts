@@ -59,7 +59,7 @@ export default class Game {
     generateViruses() {
         console.log("Game generateViruses");
 
-        for (let i = 0; i < (this.level + 2 > 10 ? 10 : this.level + 2); i++) {
+        for (let i = 0; i < (this.level + 2 > 10 ? 12 : this.level + 2); i++) {
             let virusX = Math.floor(Math.random() * 8);
             let virusY = Math.floor(Math.random() * 8) + 8;
             let virusColor = virusColors[Math.floor(Math.random() * virusColors.length)];
@@ -69,7 +69,20 @@ export default class Game {
                 virusY = Math.floor(Math.random() * 7) + 8;
             }
 
-            this.board[virusY][virusX] = 1;
+            switch (virusColor) {
+                case "red":
+                    this.board[virusY][virusX] = 2;
+                    break;
+                case "blue":
+                    this.board[virusY][virusX] = 3;
+                    break;
+                case "yellow":
+                    this.board[virusY][virusX] = 4;
+                    break;
+                default:
+                    this.board[virusY][virusX] = 0;
+                    break;
+            }
 
             this.viruses.push({
                 color: virusColor,
@@ -87,10 +100,9 @@ export default class Game {
 
     step = (timestamp: number) => {
         //console.log("Game step");
-        //console.log(this.stepData);
 
         if (this.isPillOnBoard === false) {
-            this.pill = this.getPill();
+            this.pill = new Pill().getPill();
             this.isPillOnBoard = true;
             this.stepData.done = false
 
@@ -115,28 +127,8 @@ export default class Game {
         }
 
         if (elapsed > 1000) {
-            //console.log("powyzej sekundy");
-
-            this.pill!.firstElement.position.y++;
-            this.pill!.secondElement.position.y++;
-
-            console.log("this.pill!.firstElement.position.y", this.pill!.firstElement.position.y);
-            console.log("this.pill!.secondElement.position.y", this.pill!.secondElement.position.y);
-
-            if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
-                console.log("end of board");
-                this.stepData.done = true;
-            } else {
-                if (this.board[this.pill!.firstElement.position.y + 1][this.pill!.firstElement.position.x] != 0 || this.board[this.pill!.secondElement.position.y + 1][this.pill!.secondElement.position.x] != 0) {
-                    console.log("something is under");
-                    this.stepData.done = true;
-                }
-            }
-
-            firstElement.style.top = `${parseFloat(firstElement.style.top) + 50}px`;
-            secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
-            firstElement.style.transform = `translateY(0px)`;
-            secondElement.style.transform = `translateY(0px)`;
+            //console.log("second has passed");
+            this.updateAfterSecond(firstElement, secondElement);
 
             this.stepData.previousTimeStamp = timestamp;
             this.stepData.start = this.stepData.previousTimeStamp;
@@ -145,8 +137,37 @@ export default class Game {
         if (this.stepData.done == true) {
             this.isPillOnBoard = false;
 
-            this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 1;
-            this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 1;
+            console.log(this.pill!.firstElement.color);
+
+            switch (this.pill!.firstElement.color) {
+                case "red":
+                    this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 2;
+                    break;
+                case "blue":
+                    this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 3;
+                    break;
+                case "yellow":
+                    this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 4;
+                    break;
+                default:
+                    this.board[this.pill!.firstElement.position.y][this.pill!.firstElement.position.x] = 0;
+                    break;
+            }
+
+            switch (this.pill!.secondElement.color) {
+                case "red":
+                    this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 2;
+                    break;
+                case "blue":
+                    this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 3;
+                    break;
+                case "yellow":
+                    this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 4;
+                    break;
+                default:
+                    this.board[this.pill!.secondElement.position.y][this.pill!.secondElement.position.x] = 0;
+                    break;
+            }
 
             (document.getElementById(`square_${this.pill!.firstElement.position.y}-${this.pill!.firstElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.firstElement.color;
             (document.getElementById(`square_${this.pill!.secondElement.position.y}-${this.pill!.secondElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.secondElement.color;
@@ -155,32 +176,34 @@ export default class Game {
             secondElement.remove();
 
             this.pill = null;
+
+            console.table(this.board);
         }
 
         window.requestAnimationFrame(this.step);
     }
 
-    getPill() {
-        const pill = new Pill().getPill();
+    updateAfterSecond = (firstElement: HTMLElement, secondElement: HTMLElement) => {
+        this.pill!.firstElement.position.y++;
+        this.pill!.secondElement.position.y++;
 
-        let firstPillElement = document.createElement("div");
-        firstPillElement.id = "pill_first";
-        firstPillElement.classList.add("pill");
-        firstPillElement.style.top = `${pill.firstElement.position.y * 50}px`;
-        firstPillElement.style.left = `${pill.firstElement.position.x * 50}px`;
-        firstPillElement.style.backgroundColor = pill.firstElement.color;
+        console.log("this.pill!.firstElement.position.y", this.pill!.firstElement.position.y);
+        console.log("this.pill!.secondElement.position.y", this.pill!.secondElement.position.y);
 
-        let secondPillElement = document.createElement("div");
-        secondPillElement.id = "pill_second";
-        secondPillElement.classList.add("pill");
-        secondPillElement.style.top = `${pill.secondElement.position.y * 50}px`;
-        secondPillElement.style.left = `${pill.secondElement.position.x * 50}px`;
-        secondPillElement.style.backgroundColor = pill.secondElement.color;
+        if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
+            console.log("end of board");
+            this.stepData.done = true;
+        } else {
+            if (this.board[this.pill!.firstElement.position.y + 1][this.pill!.firstElement.position.x] != 0 || this.board[this.pill!.secondElement.position.y + 1][this.pill!.secondElement.position.x] != 0) {
+                console.log("something is under");
+                this.stepData.done = true;
+            }
+        }
 
-        (document.getElementById("main") as HTMLElement).append(firstPillElement);
-        (document.getElementById("main") as HTMLElement).append(secondPillElement);
-
-        return pill;
+        firstElement.style.top = `${parseFloat(firstElement.style.top) + 50}px`;
+        secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
+        firstElement.style.transform = `translateY(0px)`;
+        secondElement.style.transform = `translateY(0px)`;
     }
 }
 
