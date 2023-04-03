@@ -5,7 +5,7 @@
           box-sizing: border-box;
 }
 
-.main {
+#app {
   position: relative;
   margin: 0px auto;
 }

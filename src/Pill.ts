@@ -8,7 +8,7 @@ interface PillElementInterface {
     position: PillPositionInterface;
 }
 
-interface PillInterface {
+export interface PillInterface {
     firstElement: PillElementInterface;
     secondElement: PillElementInterface;
 }
@@ -67,11 +67,9 @@ export default class Pill {
         secondPillElement.style.left = `${this.pill.secondElement.position.x * 50}px`;
         secondPillElement.style.backgroundColor = this.pill.secondElement.color;
 
-        (document.getElementById("main") as HTMLElement).append(firstPillElement);
-        (document.getElementById("main") as HTMLElement).append(secondPillElement);
+        (document.getElementById("app") as HTMLElement).append(firstPillElement);
+        (document.getElementById("app") as HTMLElement).append(secondPillElement);
 
         return this.pill;
     }
 };
-
-export { PillInterface };
