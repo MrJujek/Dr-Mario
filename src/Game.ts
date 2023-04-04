@@ -1,5 +1,6 @@
 import Board from "./Board.js";
 import Pill, { PillInterface } from "./Pill.js";
+import startCheckingForInput from "./Keyboard.js";
 
 interface virusPosition {
     x: number;
@@ -49,6 +50,8 @@ export default class Game {
     start() {
         console.log("Game start");
 
+        startCheckingForInput();
+
         if (this.viruses.length <= 0) {
             this.generateViruses();
         }
@@ -94,8 +97,6 @@ export default class Game {
 
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
         }
-        //console.log(this.viruses.length);
-        //console.log(this.viruses);
     }
 
     step = (timestamp: number) => {
@@ -137,7 +138,7 @@ export default class Game {
         if (this.stepData.done == true) {
             this.isPillOnBoard = false;
 
-            console.log(this.pill!.firstElement.color);
+            //console.log(this.pill!.firstElement.color);
 
             switch (this.pill!.firstElement.color) {
                 case "red":
@@ -177,7 +178,7 @@ export default class Game {
 
             this.pill = null;
 
-            console.table(this.board);
+            //console.table(this.board);
         }
 
         window.requestAnimationFrame(this.step);
@@ -187,8 +188,8 @@ export default class Game {
         this.pill!.firstElement.position.y++;
         this.pill!.secondElement.position.y++;
 
-        console.log("this.pill!.firstElement.position.y", this.pill!.firstElement.position.y);
-        console.log("this.pill!.secondElement.position.y", this.pill!.secondElement.position.y);
+        //console.log("this.pill!.firstElement.position.y", this.pill!.firstElement.position.y);
+        //console.log("this.pill!.secondElement.position.y", this.pill!.secondElement.position.y);
 
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
             console.log("end of board");

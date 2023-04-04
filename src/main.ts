@@ -1,8 +1,12 @@
 import Game from "./Game.js";
 
+let game: Game;
+
 startGame();
 
 function startGame() {
-    let game = new Game();
+    game = new Game();
     game.start();
 }
+
+export { game };

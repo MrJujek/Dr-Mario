@@ -7,7 +7,11 @@ export default class Board {
         for (let i = 0; i < rows; i++) {
             this.board[i] = [];
             for (let j = 0; j < columns; j++) {
-                this.board[i][j] = 0;
+                if (j == 0) {
+                    this.board[i][j] = 1
+                } else {
+                    this.board[i][j] = 0;
+                }
             }
         }
 
@@ -22,6 +26,10 @@ export default class Board {
                 square.style.top = `${i * 50}px`;
                 square.style.left = `${j * 50}px`;
                 square.id = `square_${i}-${j}`;
+
+                if (j == 0) {
+                    square.style.backgroundColor = "red";
+                }
 
                 (document.getElementById("app") as HTMLElement).appendChild(square);
             }
