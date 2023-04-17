@@ -34,20 +34,21 @@ function keyLeft(pill: HTMLElement[]) {
     console.log("firstX", firstX, "firstY", firstY);
     console.log("secondX", secondX, "secondY", secondY);
 
-    // if (Math.min(firstX, secondX) >= 1 && game.board[Math.min(firstY, secondY) + 1][Math.min(firstX, secondX)] == 0 && game.board[Math.min(firstY, secondY)][Math.min(firstX, secondX)] == 0) {
-    //     pill.forEach((pill) => {
-    //         console.log(pill);
-    //         pill.style.left = (parseFloat(pill.style.left) - 50) + "px";
+    //if (Math.min(firstX, secondX) >= 1 && game.board[Math.min(firstY, secondY) + 1][Math.min(firstX, secondX)] == 0 && game.board[Math.min(firstY, secondY)][Math.min(firstX, secondX)] == 0) {
+    if (Math.min(firstX, secondX) >= 1) {
+        pill.forEach((pill) => {
+            console.log(pill);
+            pill.style.left = (parseFloat(pill.style.left) - 50) + "px";
 
-    //     });
+        });
 
-    //     console.log("before", game.pill);
+        console.log("before", game.pill);
 
-    //     game.pill!.firstElement.position.x--;
-    //     game.pill!.secondElement.position.x--;
+        game.pill!.firstElement.position.x--;
+        game.pill!.secondElement.position.x--;
 
-    //     console.log("after", game.pill);
-    // }
+        console.log("after", game.pill);
+    }
 }
 
 function keyRight(pill: HTMLElement[]) {
