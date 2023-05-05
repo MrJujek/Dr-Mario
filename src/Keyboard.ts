@@ -4,73 +4,69 @@ export default function startCheckingForInput() {
     window.addEventListener("keydown", (event) => {
         let pill = Array.from(document.querySelectorAll<HTMLElement>(".pill"));
         if (pill.length > 1) {
-            if (event.key === "ArrowLeft") {
+            if (event.code === "ArrowLeft") {
                 keyLeft(pill);
             }
-            if (event.key === "ArrowRight") {
+            if (event.code === "ArrowRight") {
                 keyRight(pill);
             }
-            if (event.key === "ArrowDown") {
+            if (event.code === "ArrowDown") {
                 //keyDown(pill);
             }
-            if (event.key === "ArrowUp") {
+            if (event.code === "ArrowUp") {
                 //keyUp(pill);
+            }
+            if (event.code === "Space") {
+                game.moveFastDown = true;
             }
         } else {
             console.log("no pill");
         }
     });
+
+    window.addEventListener("keyup", (event) => {
+        console.log(event);
+
+        if (event.code === "Space") {
+            game.moveFastDown = false;
+        }
+    });
 }
 
 function keyLeft(pill: HTMLElement[]) {
-    console.log("left");
+    //console.log("left");
 
     let firstX = game.pill!.firstElement.position.x;
     let secondX = game.pill!.secondElement.position.x;
     let firstY = game.pill!.firstElement.position.y;
     let secondY = game.pill!.secondElement.position.y;
 
-    console.table(game.board)
-    console.log("firstX", firstX, "firstY", firstY);
-    console.log("secondX", secondX, "secondY", secondY);
-
-    //if (Math.min(firstX, secondX) >= 1 && game.board[Math.min(firstY, secondY) + 1][Math.min(firstX, secondX)] == 0 && game.board[Math.min(firstY, secondY)][Math.min(firstX, secondX)] == 0) {
-    if (Math.min(firstX, secondX) >= 1) {
+    //game.board[y][x]
+    if (Math.min(firstX, secondX) >= 1 && game.board[firstY][Math.min(firstX, secondX) - 1] == 0 && game.board[secondY][Math.min(firstX, secondX) - 1] == 0) {
         pill.forEach((pill) => {
-            console.log(pill);
             pill.style.left = (parseFloat(pill.style.left) - 50) + "px";
-
         });
-
-        console.log("before", game.pill);
 
         game.pill!.firstElement.position.x--;
         game.pill!.secondElement.position.x--;
-
-        console.log("after", game.pill);
     }
 }
 
 function keyRight(pill: HTMLElement[]) {
-    console.log("left");
+    //console.log("right");
 
     let firstX = game.pill!.firstElement.position.x;
     let secondX = game.pill!.secondElement.position.x;
     let firstY = game.pill!.firstElement.position.y;
     let secondY = game.pill!.secondElement.position.y;
 
-    if (Math.max(firstX, secondX) <= 6) {
+    if (Math.max(firstX, secondX) <= 6 && game.board[firstY][Math.max(firstX, secondX) + 1] == 0 && game.board[secondY][Math.max(firstX, secondX) + 1] == 0) {
         pill.forEach((pill) => {
-            console.log(pill);
             pill.style.left = (parseFloat(pill.style.left) + 50) + "px";
         });
 
-        console.log("before", game.pill);
-
         game.pill!.firstElement.position.x++;
         game.pill!.secondElement.position.x++;
-
-        console.log("after", game.pill);
     }
 }
 
