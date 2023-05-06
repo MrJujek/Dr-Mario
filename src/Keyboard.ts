@@ -14,7 +14,7 @@ export default function startCheckingForInput() {
                 keyDown();
             }
             if (event.code === "ArrowUp") {
-                //keyUp();
+                keyUp();
             }
             if (event.code === "Space") {
                 game.moveFastDown = true;
@@ -91,27 +91,95 @@ function keyDown() {
                 game.pill!.secondElement.position.y--;
             }
         } else {
-            //console.log("3 -> 1");
+            //console.log("3 -> 4");
 
-            firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
-            secondPill.style.left = (parseFloat(secondPill.style.left) + 50) + "px";
+            if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
+                firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
+                firstPill.style.top = (parseFloat(firstPill.style.top) - 50) + "px";
 
-            game.pill!.firstElement.position.x--;
-            game.pill!.secondElement.position.x++;
+                game.pill!.firstElement.position.x--;
+                game.pill!.firstElement.position.y--;
+            }
         }
     } else {
-        //console.log("2 -> 3");
+        if (firstY > secondY) {
+            //console.log("2 -> 3");
 
-        if (firstX + 1 <= 7 && game.board[firstY][firstX + 1] == 0) {
-            firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
-            secondPill.style.top = (parseFloat(secondPill.style.top) + 50) + "px";
+            if (firstX + 1 <= 7 && game.board[firstY][firstX + 1] == 0) {
+                firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) + 50) + "px";
 
-            game.pill!.firstElement.position.x++;
-            game.pill!.secondElement.position.y++;
+                game.pill!.firstElement.position.x++;
+                game.pill!.secondElement.position.y++;
+            }
+        } else {
+            //console.log("4 -> 1");
+
+            if (secondX + 1 <= 7 && game.board[secondY][secondX + 1] == 0) {
+                firstPill.style.top = (parseFloat(firstPill.style.top) + 50) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) + 50) + "px";
+
+                game.pill!.firstElement.position.y++;
+                game.pill!.secondElement.position.x++;
+            }
         }
     }
 }
 
-// function keyUp(pill: HTMLElement[]) {
-//     console.log("up");
-// }
+function keyUp() {
+    //console.log("up");
+
+    let firstX = game.pill!.firstElement.position.x;
+    let secondX = game.pill!.secondElement.position.x;
+    let firstY = game.pill!.firstElement.position.y;
+    let secondY = game.pill!.secondElement.position.y;
+
+    let firstPill = (document.getElementById("pill_first") as HTMLElement);
+    let secondPill = (document.getElementById("pill_second") as HTMLElement);
+
+    if (firstY == secondY) {
+        if (firstX < secondX) {
+            //console.log("1 -> 2");
+
+            if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
+                firstPill.style.top = (parseFloat(firstPill.style.top) - 50) + "px";
+                firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
+
+                game.pill!.firstElement.position.x++;
+                game.pill!.firstElement.position.y--;
+            }
+        } else {
+            //console.log("3 -> 4");
+
+            if (firstY - 1 >= 0 && game.board[firstY - 1][firstX] == 0) {
+                secondPill.style.left = (parseFloat(secondPill.style.left) + 50) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) - 50) + "px";
+
+                game.pill!.secondElement.position.x++;
+                game.pill!.secondElement.position.y--;
+            }
+        }
+    } else {
+        if (firstY < secondY) {
+            //console.log("2 -> 3");
+
+            if (secondX - 1 >= 0 && game.board[secondY][secondX - 1] == 0) {
+                firstPill.style.top = (parseFloat(firstPill.style.top) + 50) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) - 50) + "px";
+
+                game.pill!.firstElement.position.y++;
+                game.pill!.secondElement.position.x--;
+            }
+        } else {
+            //console.log("4 -> 1");
+
+            if (firstX - 1 >= 0 && game.board[firstY][firstX - 1] == 0) {
+                firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) + 50) + "px";
+
+                game.pill!.firstElement.position.x--;
+                game.pill!.secondElement.position.y++;
+            }
+        }
+    }
+}
