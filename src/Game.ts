@@ -18,6 +18,11 @@ interface StepData {
     done: boolean;
 }
 
+interface ToDeleteInterface {
+    row: number;
+    column: number;
+}
+
 const virusColors = [
     "red",
     "blue",
@@ -183,6 +188,8 @@ export default class Game {
             firstElement.remove();
             secondElement.remove();
 
+            this.checkForDelete();
+
             this.pill = null;
         }
 
@@ -208,6 +215,67 @@ export default class Game {
             secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
             firstElement.style.transform = `translateY(0px)`;
             secondElement.style.transform = `translateY(0px)`;
+        }
+    };
+
+    checkForDelete = () => {
+        let toDelete: ToDeleteInterface[] = [];
+        for (let row = 0; row <= 15; row++) {
+            for (let cell = 0; cell <= 4; cell++) {
+                let color = this.board[row][cell];
+                let count = 0;
+
+                if (color != 0) {
+                    for (let i = cell + 1; i <= 7; i++) {
+                        if (this.board[row][i] == color) {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (count >= 3) {
+                        for (let i = cell; i <= cell + count; i++) {
+                            toDelete.push({ row: row, column: i });
+                        }
+                    }
+                }
+            }
+        }
+
+        for (let column = 0; column <= 7; column++) {
+            for (let row = 0; row <= 12; row++) {
+                let color = this.board[row][column];
+                let count = 0;
+
+                if (color != 0) {
+                    for (let i = row + 1; i <= 15; i++) {
+                        if (this.board[i][column] == color) {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (count >= 3) {
+                        for (let i = row; i <= row + count; i++) {
+                            toDelete.push({ row: i, column: column });
+                        }
+                    }
+                }
+            }
+        }
+
+        if (toDelete.length > 0) {
+            this.deleteAnimation(toDelete);
+        }
+    }
+
+    deleteAnimation = (toDelete: ToDeleteInterface[]) => {
+        for (let i = 0; i < toDelete.length; i++) {
+            this.board[toDelete[i].row][toDelete[i].column] = 0;
+            let square = document.getElementById(`square_${toDelete[i].row}-${toDelete[i].column}`) as HTMLElement;
+            square.style.backgroundColor = "white";
         }
     }
 }
