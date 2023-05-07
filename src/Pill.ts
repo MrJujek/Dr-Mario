@@ -1,3 +1,9 @@
+interface PillClassInterface {
+    pill: PillInterface;
+    pillColors: string[];
+    getPill(): PillInterface;
+}
+
 interface PillPositionInterface {
     x: number;
     y: number;
@@ -19,7 +25,7 @@ const pillColors = [
     "yellow"
 ];
 
-export default class Pill {
+export default class Pill implements PillClassInterface {
     pill: PillInterface;
     pillColors: string[];
 
