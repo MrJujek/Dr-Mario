@@ -1,6 +1,6 @@
-import Board from "./Board.js";
-import Pill, { PillInterface } from "./Pill.js";
-import startCheckingForInput from "./Keyboard.js";
+import Board from "./Board";
+import Pill, { PillInterface } from "./Pill";
+import startCheckingForInput from "./Keyboard";
 
 interface virusPosition {
     x: number;
@@ -37,6 +37,8 @@ export default class Game {
     isPillOnBoard: boolean;
     pill: PillInterface | null;
     moveFastDown: boolean;
+    toDelete: ToDeleteInterface[];
+    animateDeletion: boolean;
 
     constructor() {
         console.log("Game constructor");
@@ -52,6 +54,8 @@ export default class Game {
         }
         this.pill = null;
         this.moveFastDown = false;
+        this.toDelete = [];
+        this.animateDeletion = false;
     }
 
     start() {
@@ -124,28 +128,21 @@ export default class Game {
 
         const elapsed = timestamp - this.stepData.start;
 
-        if (this.stepData.previousTimeStamp !== timestamp) {
-            // One frame
+        if (this.animateDeletion == false) {
+            if (this.moveFastDown) {
+                if (elapsed > 100) {
+                    this.updateAfterSecond(firstElement, secondElement);
 
-            // const count = Math.min(Math.round(0.05 * elapsed * 10) / 10, 50); //Math.round(0.05 * elapsed * 10) / 10
-            // firstElement.style.transform = `translateY(${count}px)`;
-            // secondElement.style.transform = `translateY(${count}px)`;
-        }
+                    this.stepData.previousTimeStamp = timestamp;
+                    this.stepData.start = this.stepData.previousTimeStamp;
+                }
+            } else {
+                if (elapsed > 1000) {
+                    this.updateAfterSecond(firstElement, secondElement);
 
-        //console.log("second has passed");
-        if (this.moveFastDown) {
-            if (elapsed > 100) {
-                this.updateAfterSecond(firstElement, secondElement);
-
-                this.stepData.previousTimeStamp = timestamp;
-                this.stepData.start = this.stepData.previousTimeStamp;
-            }
-        } else {
-            if (elapsed > 1000) {
-                this.updateAfterSecond(firstElement, secondElement);
-
-                this.stepData.previousTimeStamp = timestamp;
-                this.stepData.start = this.stepData.previousTimeStamp;
+                    this.stepData.previousTimeStamp = timestamp;
+                    this.stepData.start = this.stepData.previousTimeStamp;
+                }
             }
         }
 
@@ -219,7 +216,7 @@ export default class Game {
     };
 
     checkForDelete = () => {
-        let toDelete: ToDeleteInterface[] = [];
+        this.toDelete = [];
         for (let row = 0; row <= 15; row++) {
             for (let cell = 0; cell <= 4; cell++) {
                 let color = this.board[row][cell];
@@ -236,7 +233,7 @@ export default class Game {
 
                     if (count >= 3) {
                         for (let i = cell; i <= cell + count; i++) {
-                            toDelete.push({ row: row, column: i });
+                            this.toDelete.push({ row: row, column: i });
                         }
                     }
                 }
@@ -259,23 +256,54 @@ export default class Game {
 
                     if (count >= 3) {
                         for (let i = row; i <= row + count; i++) {
-                            toDelete.push({ row: i, column: column });
+                            this.toDelete.push({ row: i, column: column });
                         }
                     }
                 }
             }
         }
 
-        if (toDelete.length > 0) {
-            this.deleteAnimation(toDelete);
+        if (this.toDelete.length > 0) {
+            this.deleteAnimation();
         }
     }
 
-    deleteAnimation = (toDelete: ToDeleteInterface[]) => {
-        for (let i = 0; i < toDelete.length; i++) {
-            this.board[toDelete[i].row][toDelete[i].column] = 0;
-            let square = document.getElementById(`square_${toDelete[i].row}-${toDelete[i].column}`) as HTMLElement;
-            square.style.backgroundColor = "white";
+    deleteAnimation = () => {
+        this.animateDeletion = true;
+
+        for (let i = 0; i < this.toDelete.length; i++) {
+            let color = this.board[this.toDelete[i].row][this.toDelete[i].column];
+            let square = document.getElementById(`square_${this.toDelete[i].row}-${this.toDelete[i].column}`) as HTMLElement;
+
+            switch (color) {
+                case 2:
+                    square.style.backgroundImage = "url('/img/red_delete.png')";
+                    break;
+                case 3:
+                    square.style.backgroundImage = "url('/img/blue_delete.png')";
+                    break;
+                case 4:
+                    square.style.backgroundImage = "url('/img/yellow_delete.png')";
+                    break;
+            }
+
+            this.board[this.toDelete[i].row][this.toDelete[i].column] = 0;
+
+            setTimeout(() => {
+                square.style.backgroundImage = "url('')";
+                square.style.backgroundColor = "white";
+
+                this.animateDeletion = false;
+            }, 500);
         }
+
+        console.log(this.toDelete);
+
+
+        // setTimeout(() => {
+        //     console.log("Z");
+        // }, 500);
+
+
     }
 }

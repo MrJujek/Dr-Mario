@@ -3,24 +3,26 @@ import { game } from "./main";
 export default function startCheckingForInput() {
     window.addEventListener("keydown", (event) => {
         let pill = Array.from(document.querySelectorAll<HTMLElement>(".pill"));
+
         if (pill.length > 1) {
-            if (event.code === "ArrowLeft") {
-                keyLeft(pill);
+            if (game.moveFastDown == false && game.animateDeletion == false) {
+                if (event.code === "ArrowLeft") {
+                    keyLeft(pill);
+                }
+                if (event.code === "ArrowRight") {
+                    keyRight(pill);
+                }
+                if (event.code === "ArrowDown") {
+                    keyDown();
+                }
+                if (event.code === "ArrowUp") {
+                    keyUp();
+                }
             }
-            if (event.code === "ArrowRight") {
-                keyRight(pill);
-            }
-            if (event.code === "ArrowDown") {
-                keyDown();
-            }
-            if (event.code === "ArrowUp") {
-                keyUp();
-            }
+
             if (event.code === "Space") {
                 game.moveFastDown = true;
             }
-        } else {
-            console.log("no pill");
         }
     });
 
