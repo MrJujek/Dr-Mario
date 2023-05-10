@@ -1,4 +1,5 @@
 import { game } from "./main";
+import { getImg } from "./Pill";
 
 export default function startCheckingForInput() {
     window.addEventListener("keydown", (event) => {
@@ -83,7 +84,7 @@ function keyDown() {
 
     if (firstY == secondY) {
         if (firstX < secondX) {
-            //console.log("1 -> 2");
+            console.log("1 -> 2");
 
             if (firstY - 1 >= 0 && game.board[firstY - 1][firstX] == 0) {
                 secondPill.style.top = (parseFloat(secondPill.style.top) - 50) + "px";
@@ -91,9 +92,12 @@ function keyDown() {
 
                 game.pill!.secondElement.position.x--;
                 game.pill!.secondElement.position.y--;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "down");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "up");
             }
         } else {
-            //console.log("3 -> 4");
+            console.log("3 -> 4");
 
             if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
                 firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
@@ -101,11 +105,14 @@ function keyDown() {
 
                 game.pill!.firstElement.position.x--;
                 game.pill!.firstElement.position.y--;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "up");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "down");
             }
         }
     } else {
         if (firstY > secondY) {
-            //console.log("2 -> 3");
+            console.log("2 -> 3");
 
             if (firstX + 1 <= 7 && game.board[firstY][firstX + 1] == 0) {
                 firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
@@ -113,9 +120,12 @@ function keyDown() {
 
                 game.pill!.firstElement.position.x++;
                 game.pill!.secondElement.position.y++;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "right");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "left");
             }
         } else {
-            //console.log("4 -> 1");
+            console.log("4 -> 1");
 
             if (secondX + 1 <= 7 && game.board[secondY][secondX + 1] == 0) {
                 firstPill.style.top = (parseFloat(firstPill.style.top) + 50) + "px";
@@ -123,6 +133,9 @@ function keyDown() {
 
                 game.pill!.firstElement.position.y++;
                 game.pill!.secondElement.position.x++;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "left");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "right");
             }
         }
     }
@@ -149,6 +162,9 @@ function keyUp() {
 
                 game.pill!.firstElement.position.x++;
                 game.pill!.firstElement.position.y--;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "up");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "down");
             }
         } else {
             //console.log("3 -> 4");
@@ -159,6 +175,9 @@ function keyUp() {
 
                 game.pill!.secondElement.position.x++;
                 game.pill!.secondElement.position.y--;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "down");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "up");
             }
         }
     } else {
@@ -171,6 +190,9 @@ function keyUp() {
 
                 game.pill!.firstElement.position.y++;
                 game.pill!.secondElement.position.x--;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "right");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "left");
             }
         } else {
             //console.log("4 -> 1");
@@ -181,6 +203,9 @@ function keyUp() {
 
                 game.pill!.firstElement.position.x--;
                 game.pill!.secondElement.position.y++;
+
+                firstPill.style.backgroundImage = getImg(game.pill!.firstElement.color, "left");
+                secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "right");
             }
         }
     }

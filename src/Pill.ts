@@ -53,7 +53,6 @@ export default class Pill implements PillClassInterface {
                 }
             },
         }
-
     }
 
     getPill() {
@@ -64,14 +63,16 @@ export default class Pill implements PillClassInterface {
         firstPillElement.classList.add("pill");
         firstPillElement.style.top = `${this.pill.firstElement.position.y * 50}px`;
         firstPillElement.style.left = `${this.pill.firstElement.position.x * 50}px`;
-        firstPillElement.style.backgroundColor = this.pill.firstElement.color;
+        // firstPillElement.style.backgroundColor = this.pill.firstElement.color;
+        firstPillElement.style.backgroundImage = getImg(this.pill.firstElement.color, "left");
 
         let secondPillElement = document.createElement("div");
         secondPillElement.id = "pill_second";
         secondPillElement.classList.add("pill");
         secondPillElement.style.top = `${this.pill.secondElement.position.y * 50}px`;
         secondPillElement.style.left = `${this.pill.secondElement.position.x * 50}px`;
-        secondPillElement.style.backgroundColor = this.pill.secondElement.color;
+        // secondPillElement.style.backgroundColor = this.pill.secondElement.color;
+        secondPillElement.style.backgroundImage = getImg(this.pill.secondElement.color, "right");
 
         (document.getElementById("app") as HTMLElement).append(firstPillElement);
         (document.getElementById("app") as HTMLElement).append(secondPillElement);
@@ -79,3 +80,9 @@ export default class Pill implements PillClassInterface {
         return this.pill;
     }
 };
+
+export function getImg(color: string, direction: string) {
+    // console.log(`./img/pill/${color}_${direction}.png`);
+
+    return `url(./img/pill/${color}_${direction}.png)`;
+}

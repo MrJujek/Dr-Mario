@@ -23,6 +23,12 @@ interface ToDeleteInterface {
     column: number;
 }
 
+interface ColumnsToMoveInterface {
+    column: number;
+    start: number;
+    end: number;
+}
+
 const virusColors = [
     "red",
     "blue",
@@ -39,6 +45,8 @@ export default class Game {
     moveFastDown: boolean;
     toDelete: ToDeleteInterface[];
     animateDeletion: boolean;
+    countOfBlocksToFall: number;
+    countOfFallenBlocks: number;
 
     constructor() {
         console.log("Game constructor");
@@ -56,6 +64,8 @@ export default class Game {
         this.moveFastDown = false;
         this.toDelete = [];
         this.animateDeletion = false;
+        this.countOfBlocksToFall = 0;
+        this.countOfFallenBlocks = 0;
     }
 
     start() {
@@ -85,16 +95,13 @@ export default class Game {
 
             switch (virusColor) {
                 case "red":
-                    this.board[virusY][virusX] = 2;
+                    this.board[virusY][virusX] = 2 + 3;
                     break;
                 case "blue":
-                    this.board[virusY][virusX] = 3;
+                    this.board[virusY][virusX] = 3 + 3;
                     break;
                 case "yellow":
-                    this.board[virusY][virusX] = 4;
-                    break;
-                default:
-                    this.board[virusY][virusX] = 0;
+                    this.board[virusY][virusX] = 4 + 3;
                     break;
             }
 
@@ -106,7 +113,8 @@ export default class Game {
                 }
             });
 
-            (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
+            // (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
+            (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
         }
     }
 
@@ -179,8 +187,11 @@ export default class Game {
                     break;
             }
 
-            (document.getElementById(`square_${this.pill!.firstElement.position.y}-${this.pill!.firstElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.firstElement.color;
-            (document.getElementById(`square_${this.pill!.secondElement.position.y}-${this.pill!.secondElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.secondElement.color;
+            // (document.getElementById(`square_${this.pill!.firstElement.position.y}-${this.pill!.firstElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.firstElement.color;
+            // (document.getElementById(`square_${this.pill!.secondElement.position.y}-${this.pill!.secondElement.position.x}`) as HTMLElement).style.backgroundColor = this.pill!.secondElement.color;
+
+            (document.getElementById(`square_${this.pill!.firstElement.position.y}-${this.pill!.firstElement.position.x}`) as HTMLElement).style.backgroundImage = firstElement.style.backgroundImage;
+            (document.getElementById(`square_${this.pill!.secondElement.position.y}-${this.pill!.secondElement.position.x}`) as HTMLElement).style.backgroundImage = secondElement.style.backgroundImage;
 
             firstElement.remove();
             secondElement.remove();
@@ -224,7 +235,7 @@ export default class Game {
 
                 if (color != 0) {
                     for (let i = cell + 1; i <= 7; i++) {
-                        if (this.board[row][i] == color) {
+                        if (this.board[row][i] == color || this.board[row][i] == color + 3) {
                             count++;
                         } else {
                             break;
@@ -247,7 +258,7 @@ export default class Game {
 
                 if (color != 0) {
                     for (let i = row + 1; i <= 15; i++) {
-                        if (this.board[i][column] == color) {
+                        if (this.board[i][column] == color || this.board[i][column] == color + 3) {
                             count++;
                         } else {
                             break;
@@ -292,18 +303,77 @@ export default class Game {
             setTimeout(() => {
                 square.style.backgroundImage = "url('')";
                 square.style.backgroundColor = "white";
-
-                this.animateDeletion = false;
             }, 500);
         }
 
-        console.log(this.toDelete);
+        let columnsToMove: ColumnsToMoveInterface[] = [];
+        let columnsArray: number[] = [];
 
+        for (let i = 0; i < this.toDelete.length; i++) {
+            if (!columnsArray.includes(this.toDelete[i].column)) {
+                columnsArray.push(this.toDelete[i].column);
+            }
+        }
 
-        // setTimeout(() => {
-        //     console.log("Z");
-        // }, 500);
+        for (let i = 0; i < columnsArray.length; i++) {
+            let start = -1;
+            let end = -1;
 
+            for (let j = 0; j < this.toDelete.length; j++) {
+                if (this.toDelete[j].column == columnsArray[i]) {
+                    if (start == -1 && end == -1) {
+                        start = this.toDelete[j].row;
+                        end = this.toDelete[j].row;
+                    } else {
+                        if (start > this.toDelete[j].row) {
+                            start = this.toDelete[j].row;
+                        }
+                        if (end < this.toDelete[j].row) {
+                            end = this.toDelete[j].row;
+                        }
+                    }
+                }
+            }
 
+            columnsToMove.push({ column: columnsArray[i], start: start, end: end });
+        }
+
+        console.log(columnsToMove);
+
+        this.countOfBlocksToFall = 0;
+        this.countOfFallenBlocks = 0;
+        for (let i = 0; i < columnsToMove.length; i++) {
+            for (let j = 0; j < this.board.length; j++) {
+                if (this.board[j][columnsToMove[i].column] != 0 && j < columnsToMove[i].start) {
+                    let colorNumber = this.board[j][columnsToMove[i].column];
+                    let color = (document.getElementById(`square_${j}-${columnsToMove[i].column}`) as HTMLElement).style.backgroundColor;
+
+                    this.countOfBlocksToFall++;
+
+                    let y = j;
+                    setTimeout(() => {
+                        let moveDown = setInterval(() => {
+                            let square = document.getElementById(`square_${y}-${columnsToMove[i].column}`) as HTMLElement;
+                            (document.getElementById(`square_${y - 1}-${columnsToMove[i].column}`) as HTMLElement).style.backgroundColor = "white";
+                            square.style.backgroundColor = color;
+
+                            this.board[y][columnsToMove[i].column] = 0;
+                            y++;
+                            if (y > columnsToMove[i].end || y > 15 || this.board[y][columnsToMove[i].column] != 0) {
+                                this.countOfFallenBlocks++;
+                                clearInterval(moveDown);
+
+                                // if (this.countOfFallenBlocks >= this.countOfBlocksToFall) {
+                                //     this.animateDeletion = false;
+                                // }
+                            }
+                            this.board[y][columnsToMove[i].column] = colorNumber;
+                        }, 100);
+                    }, 500);
+                }
+            }
+        }
+
+        this.animateDeletion = false;
     }
 }

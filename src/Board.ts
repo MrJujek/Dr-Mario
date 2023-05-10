@@ -26,6 +26,7 @@ export default class Board implements BoardClassInterface {
                 square.style.top = `${i * 50}px`;
                 square.style.left = `${j * 50}px`;
                 square.id = `square_${i}-${j}`;
+                // square.style.backgroundColor = "black";
 
                 (document.getElementById("app") as HTMLElement).appendChild(square);
             }
@@ -40,9 +41,11 @@ export default class Board implements BoardClassInterface {
 }
 
 /*
-    0 - puste
-    1 - wirus
+    0 - puste pole
     2 - lek czerwony
     3 - lek niebieski
     4 - lek żółty
+    5 - virus czerwony
+    6 - virus niebieski
+    7 - virus żółty
 */
