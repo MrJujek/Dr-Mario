@@ -26,7 +26,7 @@ export default class Board implements BoardClassInterface {
                 square.style.top = `${i * 50}px`;
                 square.style.left = `${j * 50}px`;
                 square.id = `square_${i}-${j}`;
-                // square.style.backgroundColor = "black";
+                square.style.backgroundColor = "black";
 
                 (document.getElementById("app") as HTMLElement).appendChild(square);
             }

@@ -204,8 +204,13 @@ export default class Game {
         window.requestAnimationFrame(this.step);
     }
 
+    /**
+     * @param firstElement
+     * @param secondElement
+     * 
+     * check if something is under or end of board
+     */
     updateAfterSecond = (firstElement: HTMLElement, secondElement: HTMLElement) => {
-
         // check if something is under
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
             console.log("end of board");
@@ -288,13 +293,22 @@ export default class Game {
 
             switch (color) {
                 case 2:
-                    square.style.backgroundImage = "url('/img/red_delete.png')";
+                    square.style.backgroundImage = "url('/img/delete/red_delete.png')";
                     break;
                 case 3:
-                    square.style.backgroundImage = "url('/img/blue_delete.png')";
+                    square.style.backgroundImage = "url('/img/delete/blue_delete.png')";
                     break;
                 case 4:
-                    square.style.backgroundImage = "url('/img/yellow_delete.png')";
+                    square.style.backgroundImage = "url('/img/delete/yellow_delete.png')";
+                    break;
+                case 5:
+                    square.style.backgroundImage = "url('/img/delete/red_virus_delete.png')";
+                    break;
+                case 6:
+                    square.style.backgroundImage = "url('/img/delete/blue_virus_delete.png')";
+                    break;
+                case 7:
+                    square.style.backgroundImage = "url('/img/delete/yellow_virus_delete.png')";
                     break;
             }
 
@@ -302,7 +316,7 @@ export default class Game {
 
             setTimeout(() => {
                 square.style.backgroundImage = "url('')";
-                square.style.backgroundColor = "white";
+                square.style.backgroundColor = "black";
             }, 500);
         }
 
