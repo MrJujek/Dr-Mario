@@ -1,6 +1,7 @@
 import Board from "./Board";
 import Pill, { PillInterface, getImg } from "./Pill";
 import startCheckingForInput from "./Keyboard";
+import { size } from "./Board";
 
 interface virusPosition {
     x: number;
@@ -21,12 +22,6 @@ interface StepData {
 interface ToDeleteInterface {
     row: number;
     column: number;
-}
-
-interface ColumnsToMoveInterface {
-    column: number;
-    start: number;
-    end: number;
 }
 
 interface pillsPositions {
@@ -122,7 +117,6 @@ export default class Game {
                 }
             });
 
-            // (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundColor = virusColor;
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
         }
     }
@@ -139,6 +133,8 @@ export default class Game {
         if (this.stepData.start === undefined) {
             this.stepData.start = timestamp;
         }
+
+        this.animateViruses();
 
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
@@ -237,8 +233,8 @@ export default class Game {
             this.pill!.firstElement.position.y++;
             this.pill!.secondElement.position.y++;
 
-            firstElement.style.top = `${parseFloat(firstElement.style.top) + 50}px`;
-            secondElement.style.top = `${parseFloat(secondElement.style.top) + 50}px`;
+            firstElement.style.top = `${parseFloat(firstElement.style.top) + size}px`;
+            secondElement.style.top = `${parseFloat(secondElement.style.top) + size}px`;
             firstElement.style.transform = `translateY(0px)`;
             secondElement.style.transform = `translateY(0px)`;
         }
@@ -331,8 +327,7 @@ export default class Game {
 
             setTimeout(() => {
                 square.style.backgroundImage = "url('')";
-                square.style.backgroundColor = "black";
-            }, 500);
+            }, 300);
 
             for (let j = 0; j < this.pillsOnBoard.length; j++) {
                 if (this.pillsOnBoard[j].firstX == this.toDelete[i].column && this.pillsOnBoard[j].firstY == this.toDelete[i].row) {
@@ -344,9 +339,6 @@ export default class Game {
                     this.pillsOnBoard[j].secondY = null;
                 }
             }
-
-            console.log("a", this.pillsOnBoard);
-
 
             for (let j = 0; j < this.pillsOnBoard.length; j++) {
                 let countOfNull = 0;
@@ -364,11 +356,9 @@ export default class Game {
                 }
 
                 if (countOfNull == 2) {
-                    //console.log("half", this.pillsOnBoard[j]);
-
                     let dotX = Math.max(this.pillsOnBoard[j].firstX!, this.pillsOnBoard[j].secondX!);
                     let dotY = Math.max(this.pillsOnBoard[j].firstY!, this.pillsOnBoard[j].secondY!);
-                    //console.log(dotX, dotY);
+
                     let color: string = "";
                     switch (this.board[dotY][dotX]) {
                         case 2:
@@ -385,85 +375,49 @@ export default class Game {
                             break;
                     }
 
-
                     (document.getElementById(`square_${dotY}-${dotX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
                 } else if (countOfNull == 4) {
-                    //console.log("none", this.pillsOnBoard[j]);
-
                     this.pillsOnBoard.splice(j, 1);
                 }
             }
         }
-        console.log("b", this.pillsOnBoard);
-
-        let columnsToMove: ColumnsToMoveInterface[] = [];
-        let columnsArray: number[] = [];
-
-        for (let i = 0; i < this.toDelete.length; i++) {
-            if (!columnsArray.includes(this.toDelete[i].column)) {
-                columnsArray.push(this.toDelete[i].column);
-            }
-        }
-
-        for (let i = 0; i < columnsArray.length; i++) {
-            let start = -1;
-            let end = -1;
-
-            for (let j = 0; j < this.toDelete.length; j++) {
-                if (this.toDelete[j].column == columnsArray[i]) {
-                    if (start == -1 && end == -1) {
-                        start = this.toDelete[j].row;
-                        end = this.toDelete[j].row;
-                    } else {
-                        if (start > this.toDelete[j].row) {
-                            start = this.toDelete[j].row;
-                        }
-                        if (end < this.toDelete[j].row) {
-                            end = this.toDelete[j].row;
-                        }
-                    }
-                }
-            }
-
-            columnsToMove.push({ column: columnsArray[i], start: start, end: end });
-        }
-
-        // console.log(columnsToMove);
-
-        // this.countOfBlocksToFall = 0;
-        // this.countOfFallenBlocks = 0;
-        // for (let i = 0; i < columnsToMove.length; i++) {
-        //     for (let j = 0; j < this.board.length; j++) {
-        //         if (this.board[j][columnsToMove[i].column] != 0 && j < columnsToMove[i].start) {
-        //             let colorNumber = this.board[j][columnsToMove[i].column];
-        //             let color = (document.getElementById(`square_${j}-${columnsToMove[i].column}`) as HTMLElement).style.backgroundColor;
-
-        //             this.countOfBlocksToFall++;
-
-        //             let y = j;
-        //             setTimeout(() => {
-        //                 let moveDown = setInterval(() => {
-        //                     let square = document.getElementById(`square_${y}-${columnsToMove[i].column}`) as HTMLElement;
-        //                     (document.getElementById(`square_${y - 1}-${columnsToMove[i].column}`) as HTMLElement).style.backgroundColor = "white";
-        //                     square.style.backgroundColor = color;
-
-        //                     this.board[y][columnsToMove[i].column] = 0;
-        //                     y++;
-        //                     if (y > columnsToMove[i].end || y > 15 || this.board[y][columnsToMove[i].column] != 0) {
-        //                         this.countOfFallenBlocks++;
-        //                         clearInterval(moveDown);
-
-        //                         // if (this.countOfFallenBlocks >= this.countOfBlocksToFall) {
-        //                         //     this.animateDeletion = false;
-        //                         // }
-        //                     }
-        //                     this.board[y][columnsToMove[i].column] = colorNumber;
-        //                 }, 100);
-        //             }, 500);
-        //         }
-        //     }
-        // }
 
         this.animateDeletion = false;
+    }
+
+    animateViruses = () => {
+        let red = false;
+        let blue = false;
+        let yellow = false;
+
+        for (let i = 0; i < this.viruses.length; i++) {
+            switch (this.viruses[i].color) {
+                case "red":
+                    red = true;
+                    break;
+                case "blue":
+                    blue = true;
+                    break;
+                case "yellow":
+                    yellow = true;
+                    break;
+            }
+        }
+
+        if (red) {
+            document.getElementById("red_virus")!.style.display = "block";
+        } else {
+            document.getElementById("red_virus")!.style.display = "none";
+        }
+        if (blue) {
+            document.getElementById("blue_virus")!.style.display = "block";
+        } else {
+            document.getElementById("blue_virus")!.style.display = "none";
+        }
+        if (yellow) {
+            document.getElementById("yellow_virus")!.style.display = "block";
+        } else {
+            document.getElementById("yellow_virus")!.style.display = "none";
+        }
     }
 }

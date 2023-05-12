@@ -1,5 +1,6 @@
 import { game } from "./main";
 import { getImg } from "./Pill";
+import { size } from "./Board";
 
 export default function startCheckingForInput() {
     window.addEventListener("keydown", (event) => {
@@ -45,7 +46,7 @@ function keyLeft(pill: HTMLElement[]) {
     //game.board[y][x]
     if (Math.min(firstX, secondX) >= 1 && game.board[firstY][Math.min(firstX, secondX) - 1] == 0 && game.board[secondY][Math.min(firstX, secondX) - 1] == 0) {
         pill.forEach((pill) => {
-            pill.style.left = (parseFloat(pill.style.left) - 50) + "px";
+            pill.style.left = (parseFloat(pill.style.left) - size) + "px";
         });
 
         game.pill!.firstElement.position.x--;
@@ -63,7 +64,7 @@ function keyRight(pill: HTMLElement[]) {
 
     if (Math.max(firstX, secondX) <= 6 && game.board[firstY][Math.max(firstX, secondX) + 1] == 0 && game.board[secondY][Math.max(firstX, secondX) + 1] == 0) {
         pill.forEach((pill) => {
-            pill.style.left = (parseFloat(pill.style.left) + 50) + "px";
+            pill.style.left = (parseFloat(pill.style.left) + size) + "px";
         });
 
         game.pill!.firstElement.position.x++;
@@ -87,8 +88,8 @@ function keyDown() {
             console.log("1 -> 2");
 
             if (firstY - 1 >= 0 && game.board[firstY - 1][firstX] == 0) {
-                secondPill.style.top = (parseFloat(secondPill.style.top) - 50) + "px";
-                secondPill.style.left = (parseFloat(secondPill.style.left) - 50) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) - size) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) - size) + "px";
 
                 game.pill!.secondElement.position.x--;
                 game.pill!.secondElement.position.y--;
@@ -100,8 +101,8 @@ function keyDown() {
             console.log("3 -> 4");
 
             if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
-                firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
-                firstPill.style.top = (parseFloat(firstPill.style.top) - 50) + "px";
+                firstPill.style.left = (parseFloat(firstPill.style.left) - size) + "px";
+                firstPill.style.top = (parseFloat(firstPill.style.top) - size) + "px";
 
                 game.pill!.firstElement.position.x--;
                 game.pill!.firstElement.position.y--;
@@ -115,8 +116,8 @@ function keyDown() {
             console.log("2 -> 3");
 
             if (firstX + 1 <= 7 && game.board[firstY][firstX + 1] == 0) {
-                firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
-                secondPill.style.top = (parseFloat(secondPill.style.top) + 50) + "px";
+                firstPill.style.left = (parseFloat(firstPill.style.left) + size) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) + size) + "px";
 
                 game.pill!.firstElement.position.x++;
                 game.pill!.secondElement.position.y++;
@@ -128,8 +129,8 @@ function keyDown() {
             console.log("4 -> 1");
 
             if (secondX + 1 <= 7 && game.board[secondY][secondX + 1] == 0) {
-                firstPill.style.top = (parseFloat(firstPill.style.top) + 50) + "px";
-                secondPill.style.left = (parseFloat(secondPill.style.left) + 50) + "px";
+                firstPill.style.top = (parseFloat(firstPill.style.top) + size) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) + size) + "px";
 
                 game.pill!.firstElement.position.y++;
                 game.pill!.secondElement.position.x++;
@@ -157,8 +158,8 @@ function keyUp() {
             //console.log("1 -> 2");
 
             if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
-                firstPill.style.top = (parseFloat(firstPill.style.top) - 50) + "px";
-                firstPill.style.left = (parseFloat(firstPill.style.left) + 50) + "px";
+                firstPill.style.top = (parseFloat(firstPill.style.top) - size) + "px";
+                firstPill.style.left = (parseFloat(firstPill.style.left) + size) + "px";
 
                 game.pill!.firstElement.position.x++;
                 game.pill!.firstElement.position.y--;
@@ -170,8 +171,8 @@ function keyUp() {
             //console.log("3 -> 4");
 
             if (firstY - 1 >= 0 && game.board[firstY - 1][firstX] == 0) {
-                secondPill.style.left = (parseFloat(secondPill.style.left) + 50) + "px";
-                secondPill.style.top = (parseFloat(secondPill.style.top) - 50) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) + size) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) - size) + "px";
 
                 game.pill!.secondElement.position.x++;
                 game.pill!.secondElement.position.y--;
@@ -185,8 +186,8 @@ function keyUp() {
             //console.log("2 -> 3");
 
             if (secondX - 1 >= 0 && game.board[secondY][secondX - 1] == 0) {
-                firstPill.style.top = (parseFloat(firstPill.style.top) + 50) + "px";
-                secondPill.style.left = (parseFloat(secondPill.style.left) - 50) + "px";
+                firstPill.style.top = (parseFloat(firstPill.style.top) + size) + "px";
+                secondPill.style.left = (parseFloat(secondPill.style.left) - size) + "px";
 
                 game.pill!.firstElement.position.y++;
                 game.pill!.secondElement.position.x--;
@@ -198,8 +199,8 @@ function keyUp() {
             //console.log("4 -> 1");
 
             if (firstX - 1 >= 0 && game.board[firstY][firstX - 1] == 0) {
-                firstPill.style.left = (parseFloat(firstPill.style.left) - 50) + "px";
-                secondPill.style.top = (parseFloat(secondPill.style.top) + 50) + "px";
+                firstPill.style.left = (parseFloat(firstPill.style.left) - size) + "px";
+                secondPill.style.top = (parseFloat(secondPill.style.top) + size) + "px";
 
                 game.pill!.firstElement.position.x--;
                 game.pill!.secondElement.position.y++;

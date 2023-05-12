@@ -4,6 +4,8 @@ interface BoardClassInterface {
     getBoard(): number[][];
 }
 
+export const size = 16;
+
 export default class Board implements BoardClassInterface {
     board: number[][] = [[]];
 
@@ -19,20 +21,23 @@ export default class Board implements BoardClassInterface {
     }
 
     makeBoard(rows: number, columns: number) {
+        let board = document.getElementById("board") as HTMLElement;
+
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 let square = document.createElement("div");
                 square.classList.add("square");
-                square.style.top = `${i * 50}px`;
-                square.style.left = `${j * 50}px`;
+                square.style.top = `${i * size}px`;
+                square.style.left = `${j * size}px`;
                 square.id = `square_${i}-${j}`;
                 square.style.backgroundColor = "black";
 
-                (document.getElementById("app") as HTMLElement).appendChild(square);
+                board.appendChild(square);
             }
         }
-        (document.getElementById("app") as HTMLElement).style.width = `${columns * 50}px`;
-        (document.getElementById("app") as HTMLElement).style.height = `${rows * 50}px`;
+
+        board.style.width = `${columns * size}px`;
+        board.style.height = `${rows * size}px`;
     }
 
     getBoard() {

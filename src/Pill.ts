@@ -1,3 +1,5 @@
+import { size } from "./Board";
+
 interface PillClassInterface {
     pill: PillInterface;
     pillColors: string[];
@@ -61,21 +63,21 @@ export default class Pill implements PillClassInterface {
         let firstPillElement = document.createElement("div");
         firstPillElement.id = "pill_first";
         firstPillElement.classList.add("pill");
-        firstPillElement.style.top = `${this.pill.firstElement.position.y * 50}px`;
-        firstPillElement.style.left = `${this.pill.firstElement.position.x * 50}px`;
-        // firstPillElement.style.backgroundColor = this.pill.firstElement.color;
+        firstPillElement.style.top = `${this.pill.firstElement.position.y * size}px`;
+        firstPillElement.style.left = `${this.pill.firstElement.position.x * size}px`;
         firstPillElement.style.backgroundImage = getImg(this.pill.firstElement.color, "left");
 
         let secondPillElement = document.createElement("div");
         secondPillElement.id = "pill_second";
         secondPillElement.classList.add("pill");
-        secondPillElement.style.top = `${this.pill.secondElement.position.y * 50}px`;
-        secondPillElement.style.left = `${this.pill.secondElement.position.x * 50}px`;
-        // secondPillElement.style.backgroundColor = this.pill.secondElement.color;
+        secondPillElement.style.top = `${this.pill.secondElement.position.y * size}px`;
+        secondPillElement.style.left = `${this.pill.secondElement.position.x * size}px`;
         secondPillElement.style.backgroundImage = getImg(this.pill.secondElement.color, "right");
 
-        (document.getElementById("app") as HTMLElement).append(firstPillElement);
-        (document.getElementById("app") as HTMLElement).append(secondPillElement);
+        let board = document.getElementById("board") as HTMLElement;
+
+        board.append(firstPillElement);
+        board.append(secondPillElement);
 
         return this.pill;
     }
