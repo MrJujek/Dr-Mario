@@ -136,6 +136,12 @@ export default class Game {
 
         this.animateViruses();
 
+        // setTimeout(() => {
+        //     this.checkForDelete();
+        // }, 100);
+
+        // this.fallAnimation();
+
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
 
@@ -241,6 +247,8 @@ export default class Game {
     };
 
     checkForDelete = () => {
+        console.log("check for delete");
+
         this.toDelete = [];
         for (let row = 0; row <= 15; row++) {
             for (let cell = 0; cell <= 4; cell++) {
@@ -291,6 +299,7 @@ export default class Game {
         if (this.toDelete.length > 0) {
             this.deleteAnimation();
         } else {
+            this.animateDeletion = false;
             return;
         }
     }
@@ -339,48 +348,52 @@ export default class Game {
                     this.pillsOnBoard[j].secondY = null;
                 }
             }
+        }
 
-            for (let j = 0; j < this.pillsOnBoard.length; j++) {
-                let countOfNull = 0;
-                if (this.pillsOnBoard[j].firstX == null) {
-                    countOfNull++;
-                }
-                if (this.pillsOnBoard[j].secondX == null) {
-                    countOfNull++;
-                }
-                if (this.pillsOnBoard[j].firstY == null) {
-                    countOfNull++;
-                }
-                if (this.pillsOnBoard[j].secondY == null) {
-                    countOfNull++;
+        for (let j = 0; j < this.pillsOnBoard.length; j++) {
+            let countOfNull = 0;
+            if (this.pillsOnBoard[j].firstX == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[j].secondX == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[j].firstY == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[j].secondY == null) {
+                countOfNull++;
+            }
+
+            if (countOfNull == 2) {
+                let dotX = Math.max(this.pillsOnBoard[j].firstX!, this.pillsOnBoard[j].secondX!);
+                let dotY = Math.max(this.pillsOnBoard[j].firstY!, this.pillsOnBoard[j].secondY!);
+
+                let color: string = "";
+                switch (this.board[dotY][dotX]) {
+                    case 2:
+                    case 5:
+                        color = "red";
+                        break;
+                    case 3:
+                    case 6:
+                        color = "blue";
+                        break;
+                    case 4:
+                    case 7:
+                        color = "yellow";
+                        break;
                 }
 
-                if (countOfNull == 2) {
-                    let dotX = Math.max(this.pillsOnBoard[j].firstX!, this.pillsOnBoard[j].secondX!);
-                    let dotY = Math.max(this.pillsOnBoard[j].firstY!, this.pillsOnBoard[j].secondY!);
-
-                    let color: string = "";
-                    switch (this.board[dotY][dotX]) {
-                        case 2:
-                        case 5:
-                            color = "red";
-                            break;
-                        case 3:
-                        case 6:
-                            color = "blue";
-                            break;
-                        case 4:
-                        case 7:
-                            color = "yellow";
-                            break;
-                    }
-
-                    (document.getElementById(`square_${dotY}-${dotX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
-                } else if (countOfNull == 4) {
-                    this.pillsOnBoard.splice(j, 1);
-                }
+                (document.getElementById(`square_${dotY}-${dotX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+            } else if (countOfNull == 4) {
+                this.pillsOnBoard.splice(j, 1);
             }
         }
+
+        this.fallAnimation();
+
+        this.checkForDelete();
 
         this.animateDeletion = false;
     }
@@ -418,6 +431,135 @@ export default class Game {
             document.getElementById("yellow_virus")!.style.display = "block";
         } else {
             document.getElementById("yellow_virus")!.style.display = "none";
+        }
+    }
+
+    fallAnimation = () => {
+        for (let y = 15; y >= 0; y--) {
+            for (let x = 0; x <= 7; x++) {
+                for (let i = 0; i < this.pillsOnBoard.length; i++) {
+                    let countOfNull = 0;
+                    if (this.pillsOnBoard[i].firstX == null) {
+                        countOfNull++;
+                    }
+                    if (this.pillsOnBoard[i].secondX == null) {
+                        countOfNull++;
+                    }
+                    if (this.pillsOnBoard[i].firstY == null) {
+                        countOfNull++;
+                    }
+                    if (this.pillsOnBoard[i].secondY == null) {
+                        countOfNull++;
+                    }
+
+                    let firstX: number | null = null;
+                    let firstY: number | null = null;
+                    let secondX: number | null = null;
+                    let secondY: number | null = null;
+
+                    if (countOfNull == 2) {
+                        firstX = Math.max(this.pillsOnBoard[i].firstX!, this.pillsOnBoard[i].secondX!);
+                        firstY = Math.max(this.pillsOnBoard[i].firstY!, this.pillsOnBoard[i].secondY!);
+
+                        let color: string = "";
+                        switch (this.board[firstY][firstX]) {
+                            case 2:
+                            case 5:
+                                color = "red";
+                                break;
+                            case 3:
+                            case 6:
+                                color = "blue";
+                                break;
+                            case 4:
+                            case 7:
+                                color = "yellow";
+                                break;
+                        }
+
+                        setTimeout(() => {
+
+                            let interval = setInterval(() => {
+                                if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
+                                    this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
+                                    this.board[firstY!][firstX!] = 0;
+                                    firstY!++;
+
+                                    this.pillsOnBoard[i].firstX = firstX;
+                                    this.pillsOnBoard[i].firstY = firstY;
+                                    this.pillsOnBoard[i].secondX = null;
+                                    this.pillsOnBoard[i].secondY = null;
+
+                                    (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+                                    (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                                } else {
+                                    clearInterval(interval);
+                                }
+                            }, 200);
+                        }, 300);
+                    } else if (countOfNull == 0) {
+                        firstX = this.pillsOnBoard[i].firstX!;
+                        firstY = this.pillsOnBoard[i].firstY!;
+                        secondX = this.pillsOnBoard[i].secondX!;
+                        secondY = this.pillsOnBoard[i].secondY!;
+
+                        let firstColor: string = "";
+                        let secondColor: string = "";
+                        switch (this.board[firstY][firstX]) {
+                            case 2:
+                            case 5:
+                                firstColor = "red";
+                                break;
+                            case 3:
+                            case 6:
+                                firstColor = "blue";
+                                break;
+                            case 4:
+                            case 7:
+                                firstColor = "yellow";
+                                break;
+                        }
+                        switch (this.board[secondY][secondX]) {
+                            case 2:
+                            case 5:
+                                secondColor = "red";
+                                break;
+                            case 3:
+                            case 6:
+                                secondColor = "blue";
+                                break;
+                            case 4:
+                            case 7:
+                                secondColor = "yellow";
+                                break;
+                        }
+
+                        if (firstX == secondX) {
+                            if (Math.max(firstY, secondY) + 1 <= 15 && this.board[Math.max(firstY, secondY) + 1][firstX] == 0) {
+
+                            }
+                        } else {
+                            if (Math.max(firstY, secondY) + 1 <= 15 && this.board[Math.max(firstY, secondY) + 1][firstX] == 0 && this.board[Math.max(firstY, secondY) + 1][secondX] == 0) {
+
+                            }
+                        }
+
+
+                        //     let interval = setInterval(() => {
+                        //         if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
+                        //             this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
+                        //             this.board[firstY!][firstX!] = 0;
+                        //             firstY!++;
+
+                        //             (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+                        //             (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                        //         } else {
+                        //             clearInterval(interval);
+                        //         }
+                        //     }, 200);
+                    }
+                }
+            }
         }
     }
 }
