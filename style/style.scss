@@ -5,6 +5,10 @@
     overflow: hidden;
 }
 
+body {
+    background-color: black;
+}
+
 .game {
     background-image: url('../img/pf.png');
     background-size: cover;
@@ -31,8 +35,8 @@
 
 .virus {
     position: absolute;
-    width: 96px;
-    height: 72px;
+    width: 40px;
+    height: 30px;
     background-size: cover;
     background-color: black;
 }
@@ -47,4 +51,37 @@
 
 #yellow_virus {
     background-image: url('../img/magnifying_glass/yellow/1.png');
+}
+
+.stage_completed {
+    position: absolute;
+    width: 400px;
+    height: 100px;
+    top: 142px;
+    left: 120px;
+    background-image: url("../img/stage_completed.png");
+    background-size: cover;
+}
+
+.game_over {
+    position: absolute;
+    width: 400px;
+    height: 100px;
+    top: 142px;
+    left: 120px;
+    background-image: url("../img/game_over.png");
+    background-size: cover;
+}
+
+#doctor {
+    position: absolute;
+    width: calc(7 * 16px);
+    height: calc(6.4 * 16px);
+    background-repeat: no-repeat;
+    background-color: black;
+    background-position: center;
+    background-size: contain;
+    top: calc(3.75 * 16px);
+    left: calc(30 * 16px);
+    background-image: url('../img/doctor/doctor_keep.png');
 }

@@ -7,7 +7,7 @@ export default function startCheckingForInput() {
         let pill = Array.from(document.querySelectorAll<HTMLElement>(".pill"));
 
         if (pill.length > 1) {
-            if (game.moveFastDown == false && game.animateDeletion == false) {
+            if (game.moveFastDown == false && game.stopAnimation == false) {
                 if (event.code === "ArrowLeft") {
                     keyLeft(pill);
                 }
@@ -73,7 +73,7 @@ function keyRight(pill: HTMLElement[]) {
 }
 
 function keyDown() {
-    //console.log("down");
+    // console.log("down");
 
     let firstX = game.pill!.firstElement.position.x;
     let secondX = game.pill!.secondElement.position.x;

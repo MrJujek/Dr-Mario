@@ -46,10 +46,13 @@ export default class Game {
     pill: PillInterface | null;
     moveFastDown: boolean;
     toDelete: ToDeleteInterface[];
-    animateDeletion: boolean;
+    stopAnimation: boolean;
     countOfBlocksToFall: number;
     countOfFallenBlocks: number;
     pillsOnBoard: pillsPositions[];
+    redRadius: number;
+    blueRadius: number;
+    yellowRadius: number;
 
     constructor() {
         console.log("Game constructor");
@@ -57,7 +60,7 @@ export default class Game {
         this.isPillOnBoard = false;
         this.board = new Board(8, 16).getBoard();
         this.viruses = [];
-        this.level = 1;
+        this.level = 0;
         this.stepData = {
             start: undefined,
             previousTimeStamp: undefined,
@@ -66,13 +69,16 @@ export default class Game {
         this.pill = null;
         this.moveFastDown = false;
         this.toDelete = [];
-        this.animateDeletion = false;
+        this.stopAnimation = false;
         this.countOfBlocksToFall = 0;
         this.countOfFallenBlocks = 0;
         this.pillsOnBoard = [];
+        this.redRadius = 100;
+        this.blueRadius = 180;
+        this.yellowRadius = 240;
     }
 
-    start() {
+    start = () => {
         console.log("Game start");
 
         startCheckingForInput();
@@ -84,7 +90,7 @@ export default class Game {
         window.requestAnimationFrame(this.step);
     }
 
-    generateViruses() {
+    generateViruses = () => {
         console.log("Game generateViruses");
 
         for (let i = 0; i < (this.level + 2 > 10 ? 12 : this.level + 2); i++) {
@@ -119,10 +125,29 @@ export default class Game {
 
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
         }
-    }
+
+        console.log(this.viruses);
+
+    };
 
     step = (timestamp: number) => {
         //console.log("Game step");
+
+        if (this.stepData.start === undefined) {
+            this.stepData.start = timestamp;
+        }
+
+        const elapsed = timestamp - this.stepData.start;
+
+        if (elapsed > 1000) {
+            this.animateViruses();
+        }
+
+        if (this.viruses.length <= 0) {
+            this.stageCompleted();
+
+            return;
+        }
 
         if (this.isPillOnBoard === false) {
             this.pill = new Pill().getPill();
@@ -130,24 +155,10 @@ export default class Game {
             this.stepData.done = false
         }
 
-        if (this.stepData.start === undefined) {
-            this.stepData.start = timestamp;
-        }
-
-        this.animateViruses();
-
-        // setTimeout(() => {
-        //     this.checkForDelete();
-        // }, 100);
-
-        // this.fallAnimation();
-
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
 
-        const elapsed = timestamp - this.stepData.start;
-
-        if (this.animateDeletion == false) {
+        if (this.stopAnimation == false) {
             if (this.moveFastDown) {
                 if (elapsed > 100) {
                     this.updateAfterTime(firstElement, secondElement);
@@ -167,6 +178,7 @@ export default class Game {
 
         if (this.stepData.done == true) {
             this.isPillOnBoard = false;
+            this.moveFastDown = false;
 
             switch (this.pill!.firstElement.color) {
                 case "red":
@@ -217,7 +229,7 @@ export default class Game {
         }
 
         window.requestAnimationFrame(this.step);
-    }
+    };
 
     /**
      * @param firstElement
@@ -246,6 +258,130 @@ export default class Game {
         }
     };
 
+    animateViruses = () => {
+        let red = false;
+        let blue = false;
+        let yellow = false;
+
+        for (let i = 0; i < this.viruses.length; i++) {
+            switch (this.viruses[i].color) {
+                case "red":
+                    red = true;
+                    break;
+                case "blue":
+                    blue = true;
+                    break;
+                case "yellow":
+                    yellow = true;
+                    break;
+            }
+        }
+
+        if (red) {
+            let red_virus = document.getElementById("red_virus") as HTMLElement;
+            red_virus.style.display = "block";
+
+            red_virus.style.top = Math.cos(this.redRadius) * 40 + (17 * 16) + "px"
+            red_virus.style.left = Math.sin(this.redRadius) * 40 + (7 * 16) + "px"
+            this.redRadius += 0.1
+            if (this.redRadius > 360) this.redRadius = 1
+
+            switch (red_virus.style.backgroundImage) {
+                case 'url("img/magnifying_glass/red/1.png")':
+                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/red/2.png")':
+                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/3.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/red/3.png")':
+                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/red/4.png")':
+                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
+                    break;
+
+                default:
+                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
+                    break;
+            }
+        } else {
+            document.getElementById("red_virus")!.style.display = "none";
+        }
+
+        if (blue) {
+            let blue_virus = document.getElementById("blue_virus") as HTMLElement;
+
+            blue_virus.style.display = "block";
+
+            blue_virus.style.top = Math.cos(this.blueRadius) * 40 + (17 * 16) + "px"
+            blue_virus.style.left = Math.sin(this.blueRadius) * 40 + (7 * 16) + "px"
+            this.blueRadius += 0.1
+            if (this.blueRadius > 360) this.blueRadius = 1
+
+            switch (blue_virus.style.backgroundImage) {
+                case 'url("img/magnifying_glass/blue/1.png")':
+                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/blue/2.png")':
+                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/3.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/blue/3.png")':
+                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/blue/4.png")':
+                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/1.png')";
+                    break;
+
+                default:
+                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                    break;
+            }
+        } else {
+            document.getElementById("blue_virus")!.style.display = "none";
+        }
+
+        if (yellow) {
+            let yellow_virus = document.getElementById("yellow_virus") as HTMLElement;
+
+            yellow_virus.style.display = "block";
+
+            yellow_virus.style.top = Math.cos(this.yellowRadius) * 40 + (17 * 16) + "px"
+            yellow_virus.style.left = Math.sin(this.yellowRadius) * 40 + (7 * 16) + "px"
+            this.yellowRadius += 0.1
+            if (this.yellowRadius > 360) this.yellowRadius = 1
+
+            switch (yellow_virus.style.backgroundImage) {
+                case 'url("img/magnifying_glass/yellow/1.png")':
+                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/2.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/yellow/2.png")':
+                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/yellow/3.png")':
+                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/4.png')";
+                    break;
+
+                case 'url("img/magnifying_glass/yellow/4.png")':
+                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/1.png')";
+                    break;
+
+                default:
+                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
+                    break;
+            }
+        } else {
+            document.getElementById("yellow_virus")!.style.display = "none";
+        }
+    };
+
     checkForDelete = () => {
         console.log("check for delete");
 
@@ -264,7 +400,7 @@ export default class Game {
                         }
                     }
 
-                    if (count >= 3) {
+                    if (count >= 4) {
                         for (let i = cell; i <= cell + count; i++) {
                             this.toDelete.push({ row: row, column: i });
                         }
@@ -297,15 +433,19 @@ export default class Game {
         }
 
         if (this.toDelete.length > 0) {
+            // zbic
+
             this.deleteAnimation();
         } else {
-            this.animateDeletion = false;
+            // nie zbic
+
+            this.stopAnimation = false;
             return;
         }
-    }
+    };
 
     deleteAnimation = () => {
-        this.animateDeletion = true;
+        this.stopAnimation = true;
 
         for (let i = 0; i < this.toDelete.length; i++) {
             let color = this.board[this.toDelete[i].row][this.toDelete[i].column];
@@ -348,6 +488,15 @@ export default class Game {
                     this.pillsOnBoard[j].secondY = null;
                 }
             }
+
+            for (let j = 0; j < this.viruses.length; j++) {
+                if (this.viruses[j].position.x == this.toDelete[i].column && this.viruses[j].position.y == this.toDelete[i].row) {
+                    this.viruses.splice(j, 1);
+                }
+            }
+
+            console.log(this.viruses);
+
         }
 
         for (let j = 0; j < this.pillsOnBoard.length; j++) {
@@ -393,46 +542,17 @@ export default class Game {
 
         this.fallAnimation();
 
-        this.checkForDelete();
+        //this.checkForDelete();
 
-        this.animateDeletion = false;
-    }
+        this.stopAnimation = false;
+    };
 
-    animateViruses = () => {
-        let red = false;
-        let blue = false;
-        let yellow = false;
+    checkForFall = () => {
+        for (let i = 0; i < this.pillsOnBoard.length; i++) {
+            console.log(this.pillsOnBoard[i]);
 
-        for (let i = 0; i < this.viruses.length; i++) {
-            switch (this.viruses[i].color) {
-                case "red":
-                    red = true;
-                    break;
-                case "blue":
-                    blue = true;
-                    break;
-                case "yellow":
-                    yellow = true;
-                    break;
-            }
         }
-
-        if (red) {
-            document.getElementById("red_virus")!.style.display = "block";
-        } else {
-            document.getElementById("red_virus")!.style.display = "none";
-        }
-        if (blue) {
-            document.getElementById("blue_virus")!.style.display = "block";
-        } else {
-            document.getElementById("blue_virus")!.style.display = "none";
-        }
-        if (yellow) {
-            document.getElementById("yellow_virus")!.style.display = "block";
-        } else {
-            document.getElementById("yellow_virus")!.style.display = "none";
-        }
-    }
+    };
 
     fallAnimation = () => {
         for (let y = 15; y >= 0; y--) {
@@ -458,6 +578,7 @@ export default class Game {
                     let secondY: number | null = null;
 
                     if (countOfNull == 2) {
+                        // 1 element pill
                         firstX = Math.max(this.pillsOnBoard[i].firstX!, this.pillsOnBoard[i].secondX!);
                         firstY = Math.max(this.pillsOnBoard[i].firstY!, this.pillsOnBoard[i].secondY!);
 
@@ -477,89 +598,151 @@ export default class Game {
                                 break;
                         }
 
+                        //setTimeout(() => {
+                        let interval = setInterval(() => {
+                            if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
+                                this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
+                                this.board[firstY!][firstX!] = 0;
+                                firstY!++;
+
+                                this.pillsOnBoard[i].firstX = firstX;
+                                this.pillsOnBoard[i].firstY = firstY;
+                                this.pillsOnBoard[i].secondX = null;
+                                this.pillsOnBoard[i].secondY = null;
+
+                                (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+                                (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                            } else {
+                                clearInterval(interval);
+                            }
+                        }, 100);
+                        //}, 300);
+                    } else if (countOfNull == 0) {
                         setTimeout(() => {
+                            //this.stopAnimation = true;
+                            // 2 element pill
+                            firstX = this.pillsOnBoard[i].firstX!;
+                            firstY = this.pillsOnBoard[i].firstY!;
+                            secondX = this.pillsOnBoard[i].secondX!;
+                            secondY = this.pillsOnBoard[i].secondY!;
+
+                            let firstColor: string = "";
+                            let secondColor: string = "";
+                            switch (this.board[firstY][firstX]) {
+                                case 2:
+                                case 5:
+                                    firstColor = "red";
+                                    break;
+                                case 3:
+                                case 6:
+                                    firstColor = "blue";
+                                    break;
+                                case 4:
+                                case 7:
+                                    firstColor = "yellow";
+                                    break;
+                            }
+                            switch (this.board[secondY][secondX]) {
+                                case 2:
+                                case 5:
+                                    secondColor = "red";
+                                    break;
+                                case 3:
+                                case 6:
+                                    secondColor = "blue";
+                                    break;
+                                case 4:
+                                case 7:
+                                    secondColor = "yellow";
+                                    break;
+                            }
+                            //console.log("firstX", firstX, "firstY", firstY, "secondX", secondX, "secondY", secondY);
+                            //console.log("Math.max(firstY!, secondY!) + 1", Math.max(firstY!, secondY!) + 1);
+                            //console.log("this.board[Math.max(firstY!, secondY!) + 1][firstX!]", this.board[Math.max(firstY!, secondY!) + 1][firstX!]);
+                            //console.table(this.board);
+
 
                             let interval = setInterval(() => {
-                                if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
-                                    this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
-                                    this.board[firstY!][firstX!] = 0;
-                                    firstY!++;
+                                //console.log("XXXXXXXXXXXXXXXXXXXXXXXXXX");
+                                if (firstX == secondX) {
+                                    if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0) {
+                                        //console.log("pionowo");
 
-                                    this.pillsOnBoard[i].firstX = firstX;
-                                    this.pillsOnBoard[i].firstY = firstY;
-                                    this.pillsOnBoard[i].secondX = null;
-                                    this.pillsOnBoard[i].secondY = null;
+                                        firstY!++;
+                                        secondY!++;
 
-                                    (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
-                                    (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                                        //nie zmienilo ze doty spadły // chyba naprawione
+
+                                    } else {
+                                        //console.log("koniec pionowo");
+
+                                        clearInterval(interval);
+                                    }
                                 } else {
-                                    clearInterval(interval);
+                                    if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0 && this.board[Math.max(firstY!, secondY!) + 1][secondX!] == 0) {
+                                        //console.log("poziomo");
+                                        this.board[Math.max(firstY!, secondY!) + 1][firstX!] = this.board[firstY!][firstX!];
+                                        this.board[Math.max(firstY!, secondY!) + 1][secondX!] = this.board[secondY!][secondX!];
+                                        this.board[firstY!][firstX!] = 0;
+                                        this.board[secondY!][secondX!] = 0;
+
+                                        firstY!++;
+                                        secondY!++;
+
+                                        this.pillsOnBoard[i].firstX = firstX;
+                                        this.pillsOnBoard[i].firstY = firstY;
+                                        this.pillsOnBoard[i].secondX = secondX;
+                                        this.pillsOnBoard[i].secondY = secondY;
+
+                                        let firstDirection: string = "";
+                                        let secondDirection: string = "";
+
+                                        if (firstX! < secondX!) {
+                                            firstDirection = "left";
+                                            secondDirection = "right";
+                                        } else {
+                                            firstDirection = "right";
+                                            secondDirection = "left";
+                                        }
+
+                                        (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, firstDirection);
+                                        (document.getElementById(`square_${secondY}-${secondX}`) as HTMLElement).style.backgroundImage = getImg(secondColor, secondDirection);
+
+                                        (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                                        (document.getElementById(`square_${secondY! - 1}-${secondX}`) as HTMLElement).style.backgroundImage = "url('')";
+
+                                    } else {
+                                        //console.log("koniec poziomo");
+
+                                        clearInterval(interval);
+                                    }
                                 }
-                            }, 200);
-                        }, 300);
-                    } else if (countOfNull == 0) {
-                        firstX = this.pillsOnBoard[i].firstX!;
-                        firstY = this.pillsOnBoard[i].firstY!;
-                        secondX = this.pillsOnBoard[i].secondX!;
-                        secondY = this.pillsOnBoard[i].secondY!;
-
-                        let firstColor: string = "";
-                        let secondColor: string = "";
-                        switch (this.board[firstY][firstX]) {
-                            case 2:
-                            case 5:
-                                firstColor = "red";
-                                break;
-                            case 3:
-                            case 6:
-                                firstColor = "blue";
-                                break;
-                            case 4:
-                            case 7:
-                                firstColor = "yellow";
-                                break;
-                        }
-                        switch (this.board[secondY][secondX]) {
-                            case 2:
-                            case 5:
-                                secondColor = "red";
-                                break;
-                            case 3:
-                            case 6:
-                                secondColor = "blue";
-                                break;
-                            case 4:
-                            case 7:
-                                secondColor = "yellow";
-                                break;
-                        }
-
-                        if (firstX == secondX) {
-                            if (Math.max(firstY, secondY) + 1 <= 15 && this.board[Math.max(firstY, secondY) + 1][firstX] == 0) {
-
-                            }
-                        } else {
-                            if (Math.max(firstY, secondY) + 1 <= 15 && this.board[Math.max(firstY, secondY) + 1][firstX] == 0 && this.board[Math.max(firstY, secondY) + 1][secondX] == 0) {
-
-                            }
-                        }
-
-
-                        //     let interval = setInterval(() => {
-                        //         if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
-                        //             this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
-                        //             this.board[firstY!][firstX!] = 0;
-                        //             firstY!++;
-
-                        //             (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
-                        //             (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
-                        //         } else {
-                        //             clearInterval(interval);
-                        //         }
-                        //     }, 200);
+                            }, 100);
+                        }, 100);
                     }
                 }
             }
         }
+    };
+
+    stageCompleted = () => {
+        console.log("stage completed");
+
+        let stage_completed = document.createElement("div");
+        stage_completed.classList.add("stage_completed");
+        document.body.appendChild(stage_completed);
+    }
+
+    gameOver = () => {
+        console.log("game over");
+
+        let doctor_lost = document.getElementById("doctor") as HTMLElement;
+        doctor_lost.style.backgroundImage = "url(./img/doctor/doctor_lost.png)";
+
+        let game_over = document.createElement("div");
+        game_over.classList.add("game_over");
+        document.body.appendChild(game_over);
+
+        this.stopAnimation = true;
     }
 }
