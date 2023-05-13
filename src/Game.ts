@@ -2,6 +2,7 @@ import Board from "./Board";
 import Pill, { PillInterface, getImg } from "./Pill";
 import startCheckingForInput from "./Keyboard";
 import { size } from "./Board";
+import Storage from "./Storage";
 
 interface virusPosition {
     x: number;
@@ -53,6 +54,8 @@ export default class Game {
     redRadius: number;
     blueRadius: number;
     yellowRadius: number;
+    score: number;
+    storage: Storage;
 
     constructor() {
         console.log("Game constructor");
@@ -76,8 +79,18 @@ export default class Game {
         this.redRadius = 100;
         this.blueRadius = 180;
         this.yellowRadius = 240;
+        this.score = 0;
+        this.storage = new Storage();
     }
 
+    /**
+   * Starts the game.
+   * @memberof Game
+   * @method start
+   * @returns {void}
+   * @example
+   * Game.start();
+   */
     start = () => {
         console.log("Game start");
 
@@ -86,6 +99,9 @@ export default class Game {
         if (this.viruses.length <= 0) {
             this.generateViruses();
         }
+
+        this.storage.loadHighScore();
+        this.storage.updateScore(this.score);
 
         window.requestAnimationFrame(this.step);
     }
@@ -387,7 +403,7 @@ export default class Game {
 
         this.toDelete = [];
         for (let row = 0; row <= 15; row++) {
-            for (let cell = 0; cell <= 4; cell++) {
+            for (let cell = 0; cell <= 7; cell++) {
                 let color = this.board[row][cell];
                 let count = 0;
 
@@ -400,7 +416,7 @@ export default class Game {
                         }
                     }
 
-                    if (count >= 4) {
+                    if (count >= 3) {
                         for (let i = cell; i <= cell + count; i++) {
                             this.toDelete.push({ row: row, column: i });
                         }
@@ -410,7 +426,7 @@ export default class Game {
         }
 
         for (let column = 0; column <= 7; column++) {
-            for (let row = 0; row <= 12; row++) {
+            for (let row = 0; row <= 15; row++) {
                 let color = this.board[row][column];
                 let count = 0;
 
@@ -491,7 +507,12 @@ export default class Game {
 
             for (let j = 0; j < this.viruses.length; j++) {
                 if (this.viruses[j].position.x == this.toDelete[i].column && this.viruses[j].position.y == this.toDelete[i].row) {
+                    console.log("usunieto wirusa");
+
                     this.viruses.splice(j, 1);
+
+                    this.score += 100;
+                    this.storage.updateScore(this.score);
                 }
             }
 
@@ -747,7 +768,9 @@ export default class Game {
         let stage_completed = document.createElement("div");
         stage_completed.classList.add("stage_completed");
         document.body.appendChild(stage_completed);
-    }
+
+        this.stopAnimation = true;
+    };
 
     gameOver = () => {
         console.log("game over");
@@ -760,5 +783,5 @@ export default class Game {
         document.body.appendChild(game_over);
 
         this.stopAnimation = true;
-    }
+    };
 }
