@@ -579,6 +579,7 @@ export default class Game {
 
                     if (countOfNull == 2) {
                         // 1 element pill
+
                         firstX = Math.max(this.pillsOnBoard[i].firstX!, this.pillsOnBoard[i].secondX!);
                         firstY = Math.max(this.pillsOnBoard[i].firstY!, this.pillsOnBoard[i].secondY!);
 
@@ -619,8 +620,8 @@ export default class Game {
                         //}, 300);
                     } else if (countOfNull == 0) {
                         setTimeout(() => {
-                            //this.stopAnimation = true;
                             // 2 element pill
+
                             firstX = this.pillsOnBoard[i].firstX!;
                             firstY = this.pillsOnBoard[i].firstY!;
                             secondX = this.pillsOnBoard[i].secondX!;
@@ -656,23 +657,38 @@ export default class Game {
                                     secondColor = "yellow";
                                     break;
                             }
-                            //console.log("firstX", firstX, "firstY", firstY, "secondX", secondX, "secondY", secondY);
-                            //console.log("Math.max(firstY!, secondY!) + 1", Math.max(firstY!, secondY!) + 1);
-                            //console.log("this.board[Math.max(firstY!, secondY!) + 1][firstX!]", this.board[Math.max(firstY!, secondY!) + 1][firstX!]);
-                            //console.table(this.board);
-
 
                             let interval = setInterval(() => {
-                                //console.log("XXXXXXXXXXXXXXXXXXXXXXXXXX");
                                 if (firstX == secondX) {
                                     if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0) {
                                         //console.log("pionowo");
+                                        this.board[Math.max(firstY!, secondY!) + 1][firstX!] = this.board[Math.max(firstY!, secondY!)][firstX!];
+                                        this.board[Math.min(firstY!, secondY!) + 1][firstX!] = this.board[Math.min(firstY!, secondY!)][firstX!];
+                                        this.board[Math.min(firstY!, secondY!)][firstX!] = 0;
 
                                         firstY!++;
                                         secondY!++;
 
-                                        //nie zmienilo ze doty spadły // chyba naprawione
+                                        this.pillsOnBoard[i].firstX = firstX;
+                                        this.pillsOnBoard[i].firstY = firstY;
+                                        this.pillsOnBoard[i].secondX = secondX;
+                                        this.pillsOnBoard[i].secondY = secondY;
 
+                                        let firstDirection: string = "";
+                                        let secondDirection: string = "";
+
+                                        if (firstY! > secondY!) {
+                                            firstDirection = "down";
+                                            secondDirection = "up";
+                                        } else {
+                                            firstDirection = "up";
+                                            secondDirection = "down";
+                                        }
+
+                                        (document.getElementById(`square_${Math.min(firstY!, secondY!) - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+
+                                        (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, firstDirection);
+                                        (document.getElementById(`square_${secondY}-${secondX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, secondDirection);
                                     } else {
                                         //console.log("koniec pionowo");
 
