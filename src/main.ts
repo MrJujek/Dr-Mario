@@ -1,4 +1,5 @@
 import Game from "./Game";
+import "../scss/main.scss";
 
 let game: Game;
 
