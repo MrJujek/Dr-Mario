@@ -3,6 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
+    image-rendering: pixelated;
 }
 
 body {
@@ -23,6 +24,7 @@ body {
     top: calc(16 * 6px);
 }
 
+.preview_pill,
 .pill,
 .square {
     position: absolute;
@@ -112,5 +114,16 @@ body {
     height: calc(1 * 16px);
     width: calc(1 * 16px);
     background-size: cover;
+    background-color: black;
+}
+
+#countOfViruses {
+    height: calc(1 * 16px);
+    width: calc(2 * 16px);
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: calc(21 * 16px);
+    left: calc(35 * 16px);
     background-color: black;
 }

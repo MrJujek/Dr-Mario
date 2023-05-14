@@ -8,7 +8,7 @@ export default class Storage implements storateClassInterface {
     previousHighScore = 0;
 
     loadHighScore = () => {
-        console.log("loadHighScore");
+        //console.log("loadHighScore");
 
         let highScore = localStorage.getItem("highScore");
 

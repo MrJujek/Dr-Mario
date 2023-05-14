@@ -1,3 +1,6 @@
+// kiedy zbilem to nie spada kropka na zbite 
+//według kartki zrobic linie czasu
+
 import Board from "./Board";
 import Pill, { PillInterface, getImg } from "./Pill";
 import startCheckingForInput from "./Keyboard";
@@ -56,14 +59,19 @@ export default class Game {
     yellowRadius: number;
     score: number;
     storage: Storage;
+    nextColor1: string | undefined;
+    nextColor2: string | undefined;
+    isGameOver: boolean;
 
     constructor() {
-        console.log("Game constructor");
+        // console.log("Game constructor");
 
         this.isPillOnBoard = false;
         this.board = new Board(8, 16).getBoard();
         this.viruses = [];
-        this.level = 0;
+
+        this.level = 1
+
         this.stepData = {
             start: undefined,
             previousTimeStamp: undefined,
@@ -81,6 +89,9 @@ export default class Game {
         this.yellowRadius = 240;
         this.score = 0;
         this.storage = new Storage();
+        this.nextColor1 = undefined;
+        this.nextColor2 = undefined;
+        this.isGameOver = false;
     }
 
     /**
@@ -92,7 +103,7 @@ export default class Game {
    * Game.start();
    */
     start = () => {
-        console.log("Game start");
+        // console.log("Game start");
 
         startCheckingForInput();
 
@@ -107,7 +118,7 @@ export default class Game {
     }
 
     generateViruses = () => {
-        console.log("Game generateViruses");
+        // console.log("Game generateViruses");
 
         for (let i = 0; i < (this.level + 2 > 10 ? 12 : this.level + 2); i++) {
             let virusX = Math.floor(Math.random() * 8);
@@ -140,12 +151,33 @@ export default class Game {
             });
 
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
+
+            setInterval(() => {
+                this.animateViruses();
+            }, 400);
         }
 
-        console.log(this.viruses);
+        const scoreArr = this.viruses.length.toString().split("");
+        while (scoreArr.length < 2) {
+            scoreArr.unshift("0");
+        }
 
+        let div = document.getElementById("countOfViruses") as HTMLDivElement;
+
+        div.innerHTML = "";
+
+        for (const num of scoreArr) {
+            const scoreNum = document.createElement("div");
+            scoreNum.classList.add("digit");
+            scoreNum.style.backgroundImage = `url("../img/digits/${num}.png")`;
+            div.appendChild(scoreNum);
+        }
     };
 
+
+    /** 
+     * Główna pętla gry
+     */
     step = (timestamp: number) => {
         //console.log("Game step");
 
@@ -155,10 +187,9 @@ export default class Game {
 
         const elapsed = timestamp - this.stepData.start;
 
-        if (elapsed > 1000) {
-            this.animateViruses();
-        }
-
+        /**
+         * Sprawdzenie czy gra się zakończyła zwycięstwem
+         */
         if (this.viruses.length <= 0) {
             this.stageCompleted();
 
@@ -166,11 +197,74 @@ export default class Game {
         }
 
         if (this.isPillOnBoard === false) {
-            this.pill = new Pill().getPill();
-            this.isPillOnBoard = true;
-            this.stepData.done = false
-        }
+            if (this.nextColor1 && this.nextColor2) {
+                this.stopAnimation = true;
 
+                let pill = new Pill();
+
+                this.pill = pill.getPill(this.nextColor1, this.nextColor2);
+                let firstElement = document.getElementById("pill_first") as HTMLElement;
+                let secondElement = document.getElementById("pill_second") as HTMLElement;
+                firstElement.style.visibility = "hidden";
+                secondElement.style.visibility = "hidden";
+
+                pill.movePreview();
+                setTimeout(() => {
+                    this.stopAnimation = false;
+
+                    document.querySelectorAll(".preview_pill").forEach((element) => {
+                        element.remove();
+                    });
+
+                    firstElement.style.visibility = "visible";
+                    secondElement.style.visibility = "visible";
+
+                    let preview = new Pill();
+                    preview.previewPill();
+
+                    this.nextColor1 = preview.pill.firstElement.color;
+                    this.nextColor2 = preview.pill.secondElement.color;
+                }, 2000);
+                this.isPillOnBoard = true;
+                this.stepData.done = false;
+            } else {
+                this.stopAnimation = true;
+
+                let preview = new Pill();
+                preview.previewPill();
+
+                this.nextColor1 = preview.pill.firstElement.color;
+                this.nextColor2 = preview.pill.secondElement.color;
+
+                this.pill = preview.getPill(this.nextColor1, this.nextColor2);
+                let firstElement = document.getElementById("pill_first") as HTMLElement;
+                let secondElement = document.getElementById("pill_second") as HTMLElement;
+                firstElement.style.visibility = "hidden";
+                secondElement.style.visibility = "hidden";
+
+                preview.movePreview();
+                setTimeout(() => {
+                    this.stopAnimation = false;
+
+                    document.querySelectorAll(".preview_pill").forEach((element) => {
+                        element.remove();
+                    });
+
+                    firstElement.style.visibility = "visible";
+                    secondElement.style.visibility = "visible";
+
+                    let pill = new Pill();
+                    pill.previewPill();
+                    this.nextColor1 = preview.pill.firstElement.color;
+                    this.nextColor2 = preview.pill.secondElement.color;
+
+
+                }, 2000);
+                this.isPillOnBoard = true;
+                this.stepData.done = false;
+
+            }
+        }
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
 
@@ -191,6 +285,7 @@ export default class Game {
                 }
             }
         }
+
 
         if (this.stepData.done == true) {
             this.isPillOnBoard = false;
@@ -239,6 +334,9 @@ export default class Game {
                 secondY: this.pill!.secondElement.position.y
             });
 
+            // console.log("can fall?", this.checkForFall());
+
+
             this.checkForDelete();
 
             this.pill = null;
@@ -256,11 +354,11 @@ export default class Game {
     updateAfterTime = (firstElement: HTMLElement, secondElement: HTMLElement) => {
         // check if something is under
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
-            console.log("end of board");
+            // console.log("end of board");
             this.stepData.done = true;
 
         } else if (this.board[this.pill!.firstElement.position.y + 1][this.pill!.firstElement.position.x] != 0 || this.board[this.pill!.secondElement.position.y + 1][this.pill!.secondElement.position.x] != 0) {
-            console.log("something is under");
+            // console.log("something is under");
             this.stepData.done = true;
 
         } else {
@@ -275,6 +373,7 @@ export default class Game {
     };
 
     animateViruses = () => {
+        let speed = 0.03
         let red = false;
         let blue = false;
         let yellow = false;
@@ -297,31 +396,47 @@ export default class Game {
             let red_virus = document.getElementById("red_virus") as HTMLElement;
             red_virus.style.display = "block";
 
-            red_virus.style.top = Math.cos(this.redRadius) * 40 + (17 * 16) + "px"
-            red_virus.style.left = Math.sin(this.redRadius) * 40 + (7 * 16) + "px"
-            this.redRadius += 0.1
-            if (this.redRadius > 360) this.redRadius = 1
+            if (!this.isGameOver) {
+                red_virus.style.top = Math.cos(this.redRadius) * 40 + (17 * 16) + "px"
+                red_virus.style.left = Math.sin(this.redRadius) * 40 + (7 * 16) + "px"
+                this.redRadius += speed
+                if (this.redRadius > 360) this.redRadius = 1
 
-            switch (red_virus.style.backgroundImage) {
-                case 'url("img/magnifying_glass/red/1.png")':
-                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
-                    break;
+                switch (red_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/red/1.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/red/2.png")':
-                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/3.png')";
-                    break;
+                    case 'url("img/magnifying_glass/red/2.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/3.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/red/3.png")':
-                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
-                    break;
+                    case 'url("img/magnifying_glass/red/3.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/red/4.png")':
-                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
-                    break;
+                    case 'url("img/magnifying_glass/red/4.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
+                        break;
 
-                default:
-                    red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
-                    break;
+                    default:
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
+                        break;
+                }
+            } else {
+                switch (red_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/yellow/2.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
+                        break;
+
+                    case 'url("img/magnifying_glass/yellow/4.png")':
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
+                        break;
+
+                    default:
+                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
+                        break;
+                }
             }
         } else {
             document.getElementById("red_virus")!.style.display = "none";
@@ -332,31 +447,47 @@ export default class Game {
 
             blue_virus.style.display = "block";
 
-            blue_virus.style.top = Math.cos(this.blueRadius) * 40 + (17 * 16) + "px"
-            blue_virus.style.left = Math.sin(this.blueRadius) * 40 + (7 * 16) + "px"
-            this.blueRadius += 0.1
-            if (this.blueRadius > 360) this.blueRadius = 1
+            if (!this.isGameOver) {
+                blue_virus.style.top = Math.cos(this.blueRadius) * 40 + (17 * 16) + "px"
+                blue_virus.style.left = Math.sin(this.blueRadius) * 40 + (7 * 16) + "px"
+                this.blueRadius += speed
+                if (this.blueRadius > 360) this.blueRadius = 1
 
-            switch (blue_virus.style.backgroundImage) {
-                case 'url("img/magnifying_glass/blue/1.png")':
-                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
-                    break;
+                switch (blue_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/blue/1.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/blue/2.png")':
-                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/3.png')";
-                    break;
+                    case 'url("img/magnifying_glass/blue/2.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/3.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/blue/3.png")':
-                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
-                    break;
+                    case 'url("img/magnifying_glass/blue/3.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/blue/4.png")':
-                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/1.png')";
-                    break;
+                    case 'url("img/magnifying_glass/blue/4.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/1.png')";
+                        break;
 
-                default:
-                    blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
-                    break;
+                    default:
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                        break;
+                }
+            } else {
+                switch (blue_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/yellow/2.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
+                        break;
+
+                    case 'url("img/magnifying_glass/yellow/4.png")':
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                        break;
+
+                    default:
+                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
+                        break;
+                }
             }
         } else {
             document.getElementById("blue_virus")!.style.display = "none";
@@ -367,31 +498,47 @@ export default class Game {
 
             yellow_virus.style.display = "block";
 
-            yellow_virus.style.top = Math.cos(this.yellowRadius) * 40 + (17 * 16) + "px"
-            yellow_virus.style.left = Math.sin(this.yellowRadius) * 40 + (7 * 16) + "px"
-            this.yellowRadius += 0.1
-            if (this.yellowRadius > 360) this.yellowRadius = 1
+            if (!this.isGameOver) {
+                yellow_virus.style.top = Math.cos(this.yellowRadius) * 40 + (17 * 16) + "px"
+                yellow_virus.style.left = Math.sin(this.yellowRadius) * 40 + (7 * 16) + "px"
+                this.yellowRadius += speed
+                if (this.yellowRadius > 360) this.yellowRadius = 1
 
-            switch (yellow_virus.style.backgroundImage) {
-                case 'url("img/magnifying_glass/yellow/1.png")':
-                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/2.png')";
-                    break;
+                switch (yellow_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/yellow/1.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/2.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/yellow/2.png")':
-                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
-                    break;
+                    case 'url("img/magnifying_glass/yellow/2.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/yellow/3.png")':
-                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/4.png')";
-                    break;
+                    case 'url("img/magnifying_glass/yellow/3.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/4.png')";
+                        break;
 
-                case 'url("img/magnifying_glass/yellow/4.png")':
-                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/1.png')";
-                    break;
+                    case 'url("img/magnifying_glass/yellow/4.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/1.png')";
+                        break;
 
-                default:
-                    yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
-                    break;
+                    default:
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/3.png')";
+                        break;
+                }
+            } else {
+                switch (yellow_virus.style.backgroundImage) {
+                    case 'url("img/magnifying_glass/yellow/2.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/4.png')";
+                        break;
+
+                    case 'url("img/magnifying_glass/yellow/4.png")':
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/2.png')";
+                        break;
+
+                    default:
+                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/2.png')";
+                        break;
+                }
             }
         } else {
             document.getElementById("yellow_virus")!.style.display = "none";
@@ -399,7 +546,7 @@ export default class Game {
     };
 
     checkForDelete = () => {
-        console.log("check for delete");
+        // console.log("check for delete");
 
         this.toDelete = [];
         for (let row = 0; row <= 15; row++) {
@@ -492,7 +639,7 @@ export default class Game {
 
             setTimeout(() => {
                 square.style.backgroundImage = "url('')";
-            }, 300);
+            }, 100);
 
             for (let j = 0; j < this.pillsOnBoard.length; j++) {
                 if (this.pillsOnBoard[j].firstX == this.toDelete[i].column && this.pillsOnBoard[j].firstY == this.toDelete[i].row) {
@@ -507,17 +654,30 @@ export default class Game {
 
             for (let j = 0; j < this.viruses.length; j++) {
                 if (this.viruses[j].position.x == this.toDelete[i].column && this.viruses[j].position.y == this.toDelete[i].row) {
-                    console.log("usunieto wirusa");
+                    // console.log("usunieto wirusa");
 
                     this.viruses.splice(j, 1);
 
                     this.score += 100;
                     this.storage.updateScore(this.score);
+
+                    const scoreArr = this.viruses.length.toString().split("");
+                    while (scoreArr.length < 2) {
+                        scoreArr.unshift("0");
+                    }
+
+                    let div = document.getElementById("countOfViruses") as HTMLDivElement;
+
+                    div.innerHTML = "";
+
+                    for (const num of scoreArr) {
+                        const scoreNum = document.createElement("div");
+                        scoreNum.classList.add("digit");
+                        scoreNum.style.backgroundImage = `url("../img/digits/${num}.png")`;
+                        div.appendChild(scoreNum);
+                    }
                 }
             }
-
-            console.log(this.viruses);
-
         }
 
         for (let j = 0; j < this.pillsOnBoard.length; j++) {
@@ -561,6 +721,8 @@ export default class Game {
             }
         }
 
+        //this.checkForFall()
+
         this.fallAnimation();
 
         //this.checkForDelete();
@@ -570,10 +732,48 @@ export default class Game {
 
     checkForFall = () => {
         for (let i = 0; i < this.pillsOnBoard.length; i++) {
-            console.log(this.pillsOnBoard[i]);
+            let countOfNull = 0;
+            if (this.pillsOnBoard[i].firstX == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[i].secondX == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[i].firstY == null) {
+                countOfNull++;
+            }
+            if (this.pillsOnBoard[i].secondY == null) {
+                countOfNull++;
+            }
 
+            if (countOfNull == 2) {
+                let dotX = Math.max(this.pillsOnBoard[i].firstX!, this.pillsOnBoard[i].secondX!);
+                let dotY = Math.max(this.pillsOnBoard[i].firstY!, this.pillsOnBoard[i].secondY!);
+
+                if (dotY + 1 <= 15 && this.board[dotY + 1][dotX] == 0) {
+                    return true;
+                }
+            } else if (countOfNull == 4) {
+                let firstX = this.pillsOnBoard[i].firstX;
+                let firstY = this.pillsOnBoard[i].firstY;
+                let secondX = this.pillsOnBoard[i].secondX;
+                let secondY = this.pillsOnBoard[i].secondY;
+
+                if (firstY == secondY) {
+                    // poziomo
+                    if (firstY! + 1 <= 15 && secondY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0 && this.board[secondY! + 1][secondX!] == 0) {
+                        return true;
+                    }
+                } else {
+                    // pionowo
+                    if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0) {
+                        return true;
+                    }
+                }
+            }
         }
-    };
+        return false;
+    }
 
     fallAnimation = () => {
         for (let y = 15; y >= 0; y--) {
@@ -620,25 +820,25 @@ export default class Game {
                                 break;
                         }
 
-                        //setTimeout(() => {
-                        let interval = setInterval(() => {
-                            if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
-                                this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
-                                this.board[firstY!][firstX!] = 0;
-                                firstY!++;
+                        setTimeout(() => {
+                            let interval = setInterval(() => {
+                                if (firstY! + 1 <= 15 && this.board[firstY! + 1][firstX!] == 0) {
+                                    this.board[firstY! + 1][firstX!] = this.board[firstY!][firstX!];
+                                    this.board[firstY!][firstX!] = 0;
+                                    firstY!++;
 
-                                this.pillsOnBoard[i].firstX = firstX;
-                                this.pillsOnBoard[i].firstY = firstY;
-                                this.pillsOnBoard[i].secondX = null;
-                                this.pillsOnBoard[i].secondY = null;
+                                    this.pillsOnBoard[i].firstX = firstX;
+                                    this.pillsOnBoard[i].firstY = firstY;
+                                    this.pillsOnBoard[i].secondX = null;
+                                    this.pillsOnBoard[i].secondY = null;
 
-                                (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
-                                (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
-                            } else {
-                                clearInterval(interval);
-                            }
+                                    (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+                                    (document.getElementById(`square_${firstY! - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
+                                } else {
+                                    clearInterval(interval);
+                                }
+                            }, 100);
                         }, 100);
-                        //}, 300);
                     } else if (countOfNull == 0) {
                         setTimeout(() => {
                             // 2 element pill
@@ -682,7 +882,6 @@ export default class Game {
                             let interval = setInterval(() => {
                                 if (firstX == secondX) {
                                     if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0) {
-                                        //console.log("pionowo");
                                         this.board[Math.max(firstY!, secondY!) + 1][firstX!] = this.board[Math.max(firstY!, secondY!)][firstX!];
                                         this.board[Math.min(firstY!, secondY!) + 1][firstX!] = this.board[Math.min(firstY!, secondY!)][firstX!];
                                         this.board[Math.min(firstY!, secondY!)][firstX!] = 0;
@@ -711,13 +910,10 @@ export default class Game {
                                         (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, firstDirection);
                                         (document.getElementById(`square_${secondY}-${secondX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, secondDirection);
                                     } else {
-                                        //console.log("koniec pionowo");
-
                                         clearInterval(interval);
                                     }
                                 } else {
                                     if (Math.max(firstY!, secondY!) + 1 <= 15 && this.board[Math.max(firstY!, secondY!) + 1][firstX!] == 0 && this.board[Math.max(firstY!, secondY!) + 1][secondX!] == 0) {
-                                        //console.log("poziomo");
                                         this.board[Math.max(firstY!, secondY!) + 1][firstX!] = this.board[firstY!][firstX!];
                                         this.board[Math.max(firstY!, secondY!) + 1][secondX!] = this.board[secondY!][secondX!];
                                         this.board[firstY!][firstX!] = 0;
@@ -749,8 +945,6 @@ export default class Game {
                                         (document.getElementById(`square_${secondY! - 1}-${secondX}`) as HTMLElement).style.backgroundImage = "url('')";
 
                                     } else {
-                                        //console.log("koniec poziomo");
-
                                         clearInterval(interval);
                                     }
                                 }
@@ -769,6 +963,8 @@ export default class Game {
         stage_completed.classList.add("stage_completed");
         document.body.appendChild(stage_completed);
 
+        // this.animateViruses();
+
         this.stopAnimation = true;
     };
 
@@ -781,6 +977,8 @@ export default class Game {
         let game_over = document.createElement("div");
         game_over.classList.add("game_over");
         document.body.appendChild(game_over);
+
+        this.isGameOver = true;
 
         this.stopAnimation = true;
     };
