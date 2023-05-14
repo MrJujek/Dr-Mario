@@ -1,5 +1,4 @@
 import { size } from "./Board";
-import { game } from "./main";
 
 interface PillClassInterface {
     pill: PillInterface;
@@ -33,8 +32,6 @@ export default class Pill implements PillClassInterface {
     pillColors: string[];
 
     constructor() {
-        //console.log("Pill constructor");
-
         this.pillColors = []
         for (let i = 0; i < 2; i++) {
             this.pillColors.push(pillColors[Math.floor(Math.random() * pillColors.length)]);
@@ -59,8 +56,6 @@ export default class Pill implements PillClassInterface {
     }
 
     previewPill() {
-        console.log("Preview pill");
-
         let firstPillElement = document.createElement("div");
         firstPillElement.id = "preview_first";
         firstPillElement.classList.add("preview_pill");
@@ -80,8 +75,6 @@ export default class Pill implements PillClassInterface {
     }
 
     getPill(color1?: string, color2?: string) {
-        console.log("Get pill");
-
         let firstPillElement = document.createElement("div");
         firstPillElement.id = "pill_first";
         firstPillElement.classList.add("pill");
@@ -117,8 +110,6 @@ export default class Pill implements PillClassInterface {
     }
 
     movePreview() {
-        console.log("Move preview");
-
         let frame = 0;
         let animation = setInterval(() => {
             if (frame == 0) {
@@ -137,11 +128,11 @@ export default class Pill implements PillClassInterface {
             secondPillElement.style.left = `${(pillAnimation[frame][1] + 1) * size}px`;
 
             frame++;
-        }, 100);
+        }, 50);
 
         setTimeout(() => {
             clearInterval(animation);
-        }, 2000);
+        }, 1000);
 
     }
 };

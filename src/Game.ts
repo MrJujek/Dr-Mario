@@ -62,15 +62,14 @@ export default class Game {
     nextColor1: string | undefined;
     nextColor2: string | undefined;
     isGameOver: boolean;
+    isStageCompleted: boolean;
 
     constructor() {
-        // console.log("Game constructor");
-
         this.isPillOnBoard = false;
         this.board = new Board(8, 16).getBoard();
         this.viruses = [];
 
-        this.level = 1
+        this.level = 4
 
         this.stepData = {
             start: undefined,
@@ -92,6 +91,7 @@ export default class Game {
         this.nextColor1 = undefined;
         this.nextColor2 = undefined;
         this.isGameOver = false;
+        this.isStageCompleted = false;
     }
 
     /**
@@ -103,8 +103,6 @@ export default class Game {
    * Game.start();
    */
     start = () => {
-        // console.log("Game start");
-
         startCheckingForInput();
 
         if (this.viruses.length <= 0) {
@@ -118,9 +116,7 @@ export default class Game {
     }
 
     generateViruses = () => {
-        // console.log("Game generateViruses");
-
-        for (let i = 0; i < (this.level + 2 > 10 ? 12 : this.level + 2); i++) {
+        for (let i = 0; i < (this.level + 2 > 30 ? 30 : this.level + 2); i++) {
             let virusX = Math.floor(Math.random() * 8);
             let virusY = Math.floor(Math.random() * 8) + 8;
             let virusColor = virusColors[Math.floor(Math.random() * virusColors.length)];
@@ -151,11 +147,14 @@ export default class Game {
             });
 
             (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
-
-            setInterval(() => {
-                this.animateViruses();
-            }, 400);
         }
+
+        let interval = setInterval(() => {
+            if (this.isStageCompleted === true) {
+                clearInterval(interval);
+            }
+            this.animateViruses();
+        }, 400);
 
         const scoreArr = this.viruses.length.toString().split("");
         while (scoreArr.length < 2) {
@@ -179,8 +178,6 @@ export default class Game {
      * Główna pętla gry
      */
     step = (timestamp: number) => {
-        //console.log("Game step");
-
         if (this.stepData.start === undefined) {
             this.stepData.start = timestamp;
         }
@@ -197,10 +194,17 @@ export default class Game {
         }
 
         if (this.isPillOnBoard === false) {
+            //if (this.checkForFall() == false) {
             if (this.nextColor1 && this.nextColor2) {
                 this.stopAnimation = true;
 
                 let pill = new Pill();
+
+                pill.movePreview();
+                let lost = false
+                if (this.board[0][3] != 0 || this.board[0][4] != 0) {
+                    lost = true;
+                }
 
                 this.pill = pill.getPill(this.nextColor1, this.nextColor2);
                 let firstElement = document.getElementById("pill_first") as HTMLElement;
@@ -208,23 +212,28 @@ export default class Game {
                 firstElement.style.visibility = "hidden";
                 secondElement.style.visibility = "hidden";
 
-                pill.movePreview();
                 setTimeout(() => {
-                    this.stopAnimation = false;
-
                     document.querySelectorAll(".preview_pill").forEach((element) => {
                         element.remove();
                     });
 
-                    firstElement.style.visibility = "visible";
-                    secondElement.style.visibility = "visible";
+                    if (!lost) {
+                        this.stopAnimation = false;
 
-                    let preview = new Pill();
-                    preview.previewPill();
+                        firstElement.style.visibility = "visible";
+                        secondElement.style.visibility = "visible";
 
-                    this.nextColor1 = preview.pill.firstElement.color;
-                    this.nextColor2 = preview.pill.secondElement.color;
-                }, 2000);
+                        let preview = new Pill();
+                        preview.previewPill();
+
+                        this.nextColor1 = preview.pill.firstElement.color;
+                        this.nextColor2 = preview.pill.secondElement.color;
+                    } else {
+                        this.isGameOver = true;
+                        this.gameOver();
+                        return;
+                    }
+                }, 1200);
                 this.isPillOnBoard = true;
                 this.stepData.done = false;
             } else {
@@ -255,15 +264,18 @@ export default class Game {
 
                     let pill = new Pill();
                     pill.previewPill();
-                    this.nextColor1 = preview.pill.firstElement.color;
-                    this.nextColor2 = preview.pill.secondElement.color;
+                    this.nextColor1 = pill.pill.firstElement.color;
+                    this.nextColor2 = pill.pill.secondElement.color;
 
 
-                }, 2000);
+                }, 1200);
                 this.isPillOnBoard = true;
                 this.stepData.done = false;
 
             }
+            // } else {
+            //     this.fallAnimation();
+            // }
         }
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
@@ -336,7 +348,6 @@ export default class Game {
 
             // console.log("can fall?", this.checkForFall());
 
-
             this.checkForDelete();
 
             this.pill = null;
@@ -352,13 +363,10 @@ export default class Game {
      * check if something is under or end of board
      */
     updateAfterTime = (firstElement: HTMLElement, secondElement: HTMLElement) => {
-        // check if something is under
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
-            // console.log("end of board");
             this.stepData.done = true;
 
         } else if (this.board[this.pill!.firstElement.position.y + 1][this.pill!.firstElement.position.x] != 0 || this.board[this.pill!.secondElement.position.y + 1][this.pill!.secondElement.position.x] != 0) {
-            // console.log("something is under");
             this.stepData.done = true;
 
         } else {
@@ -373,7 +381,9 @@ export default class Game {
     };
 
     animateViruses = () => {
-        let speed = 0.03
+        console.log(this.isGameOver);
+
+        let speed = 0.1
         let red = false;
         let blue = false;
         let yellow = false;
@@ -412,10 +422,6 @@ export default class Game {
                         break;
 
                     case 'url("img/magnifying_glass/red/3.png")':
-                        red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
-                        break;
-
-                    case 'url("img/magnifying_glass/red/4.png")':
                         red_virus.style.backgroundImage = "url('img/magnifying_glass/red/1.png')";
                         break;
 
@@ -425,11 +431,11 @@ export default class Game {
                 }
             } else {
                 switch (red_virus.style.backgroundImage) {
-                    case 'url("img/magnifying_glass/yellow/2.png")':
+                    case 'url("img/magnifying_glass/red/2.png")':
                         red_virus.style.backgroundImage = "url('img/magnifying_glass/red/4.png')";
                         break;
 
-                    case 'url("img/magnifying_glass/yellow/4.png")':
+                    case 'url("img/magnifying_glass/red/4.png")':
                         red_virus.style.backgroundImage = "url('img/magnifying_glass/red/2.png')";
                         break;
 
@@ -463,10 +469,6 @@ export default class Game {
                         break;
 
                     case 'url("img/magnifying_glass/blue/3.png")':
-                        blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
-                        break;
-
-                    case 'url("img/magnifying_glass/blue/4.png")':
                         blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/1.png')";
                         break;
 
@@ -476,11 +478,11 @@ export default class Game {
                 }
             } else {
                 switch (blue_virus.style.backgroundImage) {
-                    case 'url("img/magnifying_glass/yellow/2.png")':
+                    case 'url("img/magnifying_glass/blue/2.png")':
                         blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/4.png')";
                         break;
 
-                    case 'url("img/magnifying_glass/yellow/4.png")':
+                    case 'url("img/magnifying_glass/blue/4.png")':
                         blue_virus.style.backgroundImage = "url('img/magnifying_glass/blue/2.png')";
                         break;
 
@@ -514,10 +516,6 @@ export default class Game {
                         break;
 
                     case 'url("img/magnifying_glass/yellow/3.png")':
-                        yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/4.png')";
-                        break;
-
-                    case 'url("img/magnifying_glass/yellow/4.png")':
                         yellow_virus.style.backgroundImage = "url('img/magnifying_glass/yellow/1.png')";
                         break;
 
@@ -550,7 +548,7 @@ export default class Game {
 
         this.toDelete = [];
         for (let row = 0; row <= 15; row++) {
-            for (let cell = 0; cell <= 7; cell++) {
+            for (let cell = 0; cell <= 4; cell++) {
                 let color = this.board[row][cell];
                 let count = 0;
 
@@ -573,7 +571,7 @@ export default class Game {
         }
 
         for (let column = 0; column <= 7; column++) {
-            for (let row = 0; row <= 15; row++) {
+            for (let row = 0; row <= 12; row++) {
                 let color = this.board[row][column];
                 let count = 0;
 
@@ -654,8 +652,6 @@ export default class Game {
 
             for (let j = 0; j < this.viruses.length; j++) {
                 if (this.viruses[j].position.x == this.toDelete[i].column && this.viruses[j].position.y == this.toDelete[i].row) {
-                    // console.log("usunieto wirusa");
-
                     this.viruses.splice(j, 1);
 
                     this.score += 100;
@@ -731,6 +727,8 @@ export default class Game {
     };
 
     checkForFall = () => {
+        console.log("checkForFall");
+
         for (let i = 0; i < this.pillsOnBoard.length; i++) {
             let countOfNull = 0;
             if (this.pillsOnBoard[i].firstX == null) {
@@ -908,7 +906,7 @@ export default class Game {
                                         (document.getElementById(`square_${Math.min(firstY!, secondY!) - 1}-${firstX}`) as HTMLElement).style.backgroundImage = "url('')";
 
                                         (document.getElementById(`square_${firstY}-${firstX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, firstDirection);
-                                        (document.getElementById(`square_${secondY}-${secondX}`) as HTMLElement).style.backgroundImage = getImg(firstColor, secondDirection);
+                                        (document.getElementById(`square_${secondY}-${secondX}`) as HTMLElement).style.backgroundImage = getImg(secondColor, secondDirection);
                                     } else {
                                         clearInterval(interval);
                                     }
@@ -957,20 +955,16 @@ export default class Game {
     };
 
     stageCompleted = () => {
-        console.log("stage completed");
-
         let stage_completed = document.createElement("div");
         stage_completed.classList.add("stage_completed");
         document.body.appendChild(stage_completed);
 
-        // this.animateViruses();
+        this.isStageCompleted = true;
 
         this.stopAnimation = true;
     };
 
     gameOver = () => {
-        console.log("game over");
-
         let doctor_lost = document.getElementById("doctor") as HTMLElement;
         doctor_lost.style.backgroundImage = "url(./img/doctor/doctor_lost.png)";
 
