@@ -1,6 +1,3 @@
-// kiedy zbilem to nie spada kropka na zbite 
-//według kartki zrobic linie czasu
-
 import Board from "./Board";
 import Pill, { PillInterface, getImg } from "./Pill";
 import startCheckingForInput from "./Keyboard";
@@ -63,6 +60,7 @@ export default class Game {
     nextColor2: string | undefined;
     isGameOver: boolean;
     isStageCompleted: boolean;
+    animateThrow: boolean;
 
     constructor() {
         this.isPillOnBoard = false;
@@ -92,16 +90,17 @@ export default class Game {
         this.nextColor2 = undefined;
         this.isGameOver = false;
         this.isStageCompleted = false;
+        this.animateThrow = false;
     }
 
     /**
-   * Starts the game.
-   * @memberof Game
-   * @method start
-   * @returns {void}
-   * @example
-   * Game.start();
-   */
+     * Starts the game.
+     * @memberof Game
+     * @method start
+     * @returns {void}
+     * @example
+     * Game.start();
+     */
     start = () => {
         startCheckingForInput();
 
@@ -115,6 +114,13 @@ export default class Game {
         window.requestAnimationFrame(this.step);
     }
 
+    /**
+     * Generuje wirusy
+     * 
+     * @memberof Game
+     * @method generateViruses
+     * @returns {void}
+     */
     generateViruses = () => {
         for (let i = 0; i < (this.level + 2 > 30 ? 30 : this.level + 2); i++) {
             let virusX = Math.floor(Math.random() * 8);
@@ -176,17 +182,18 @@ export default class Game {
 
     /** 
      * Główna pętla gry
+     * 
+     * @memberof Game
+     * @method step
+     * @param {number} timestamp
+     * @returns {void}
      */
     step = (timestamp: number) => {
         if (this.stepData.start === undefined) {
             this.stepData.start = timestamp;
         }
 
-        const elapsed = timestamp - this.stepData.start;
-
-        /**
-         * Sprawdzenie czy gra się zakończyła zwycięstwem
-         */
+        //Sprawdzenie czy gra się zakończyła zwycięstwem
         if (this.viruses.length <= 0) {
             this.stageCompleted();
 
@@ -194,9 +201,15 @@ export default class Game {
         }
 
         if (this.isPillOnBoard === false) {
-            //if (this.checkForFall() == false) {
+            this.animateThrow = true;
             if (this.nextColor1 && this.nextColor2) {
                 this.stopAnimation = true;
+
+                setTimeout(() => {
+                    console.log("XXXX");
+
+                    this.checkForDelete();
+                }, 200);
 
                 let pill = new Pill();
 
@@ -233,7 +246,10 @@ export default class Game {
                         this.gameOver();
                         return;
                     }
+
+                    this.animateThrow = false;
                 }, 1200);
+
                 this.isPillOnBoard = true;
                 this.stepData.done = false;
             } else {
@@ -267,21 +283,20 @@ export default class Game {
                     this.nextColor1 = pill.pill.firstElement.color;
                     this.nextColor2 = pill.pill.secondElement.color;
 
-
+                    this.animateThrow = false;
                 }, 1200);
                 this.isPillOnBoard = true;
                 this.stepData.done = false;
 
             }
-            // } else {
-            //     this.fallAnimation();
-            // }
         }
+
         let firstElement = document.getElementById("pill_first") as HTMLElement;
         let secondElement = document.getElementById("pill_second") as HTMLElement;
 
+        const elapsed = timestamp - this.stepData.start;
         if (this.stopAnimation == false) {
-            if (this.moveFastDown) {
+            if (this.moveFastDown && this.animateThrow == false) {
                 if (elapsed > 100) {
                     this.updateAfterTime(firstElement, secondElement);
 
@@ -360,7 +375,7 @@ export default class Game {
      * @param firstElement
      * @param secondElement
      * 
-     * check if something is under or end of board
+     * Check if something is under or end of board
      */
     updateAfterTime = (firstElement: HTMLElement, secondElement: HTMLElement) => {
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
@@ -380,9 +395,13 @@ export default class Game {
         }
     };
 
+    /**
+     * Animuje virusy
+     * 
+     * @memberof Game
+     * @return {void}
+     */
     animateViruses = () => {
-        console.log(this.isGameOver);
-
         let speed = 0.1
         let red = false;
         let blue = false;
@@ -402,6 +421,7 @@ export default class Game {
             }
         }
 
+        // Animuj czerwonego wirusa
         if (red) {
             let red_virus = document.getElementById("red_virus") as HTMLElement;
             red_virus.style.display = "block";
@@ -448,6 +468,7 @@ export default class Game {
             document.getElementById("red_virus")!.style.display = "none";
         }
 
+        // Animuj niebieskiego wirusa
         if (blue) {
             let blue_virus = document.getElementById("blue_virus") as HTMLElement;
 
@@ -495,6 +516,7 @@ export default class Game {
             document.getElementById("blue_virus")!.style.display = "none";
         }
 
+        // Animuj zółtego wirusa
         if (yellow) {
             let yellow_virus = document.getElementById("yellow_virus") as HTMLElement;
 
@@ -543,10 +565,16 @@ export default class Game {
         }
     };
 
+    /**
+     * Checks if there are any rows and columns to delete
+     * 
+     * @memberof Game
+     * @returns {void}
+     */
     checkForDelete = () => {
-        // console.log("check for delete");
-
         this.toDelete = [];
+
+        // Sprawdzanie wierszy
         for (let row = 0; row <= 15; row++) {
             for (let cell = 0; cell <= 4; cell++) {
                 let color = this.board[row][cell];
@@ -570,6 +598,8 @@ export default class Game {
             }
         }
 
+
+        // Sprawdzanie kolumn
         for (let column = 0; column <= 7; column++) {
             for (let row = 0; row <= 12; row++) {
                 let color = this.board[row][column];
@@ -593,18 +623,27 @@ export default class Game {
             }
         }
 
+        // Jezeli jest cos do usuniecia
         if (this.toDelete.length > 0) {
             // zbic
 
             this.deleteAnimation();
+
+            // Jesli nie ma nic do usuniecia
         } else {
             // nie zbic
 
             this.stopAnimation = false;
-            return;
         }
     };
 
+
+    /**
+     * Deletes rows and columns with animation
+     * 
+     * @memberof Game
+     * @returns {void}
+     */
     deleteAnimation = () => {
         this.stopAnimation = true;
 
@@ -635,6 +674,7 @@ export default class Game {
 
             this.board[this.toDelete[i].row][this.toDelete[i].column] = 0;
 
+            // Usuniecie animacji
             setTimeout(() => {
                 square.style.backgroundImage = "url('')";
             }, 100);
@@ -691,6 +731,7 @@ export default class Game {
                 countOfNull++;
             }
 
+            // tabletka ma 1 czesc
             if (countOfNull == 2) {
                 let dotX = Math.max(this.pillsOnBoard[j].firstX!, this.pillsOnBoard[j].secondX!);
                 let dotY = Math.max(this.pillsOnBoard[j].firstY!, this.pillsOnBoard[j].secondY!);
@@ -712,22 +753,33 @@ export default class Game {
                 }
 
                 (document.getElementById(`square_${dotY}-${dotX}`) as HTMLElement).style.backgroundImage = getImg(color, "dot");
+
+                // tabletka nie ma zadnych czesci wiec ja usuwamy
             } else if (countOfNull == 4) {
                 this.pillsOnBoard.splice(j, 1);
             }
         }
 
-        //this.checkForFall()
-
-        this.fallAnimation();
-
-        //this.checkForDelete();
-
-        this.stopAnimation = false;
+        // Jesli moga spasc
+        if (this.checkForFall() == true) {
+            // spadaja
+            this.fallAnimation();
+        } else {
+            //nie spadaja
+            this.stopAnimation = false;
+        }
     };
 
+
+    /**
+     * Sprawdzanie czy moga spasc
+     * 
+     * @memberof Game
+     * @returns {true} jesli moga spasc
+     * @returns {false} jesli nie moga spasc
+     */
     checkForFall = () => {
-        console.log("checkForFall");
+        // console.log("checkForFall");
 
         for (let i = 0; i < this.pillsOnBoard.length; i++) {
             let countOfNull = 0;
@@ -773,7 +825,15 @@ export default class Game {
         return false;
     }
 
+    /**
+     * Animacja spadania
+     * 
+     * @memberof Game
+     * @returns {void}
+     */
     fallAnimation = () => {
+        let speed = 50;
+
         for (let y = 15; y >= 0; y--) {
             for (let x = 0; x <= 7; x++) {
                 for (let i = 0; i < this.pillsOnBoard.length; i++) {
@@ -835,8 +895,8 @@ export default class Game {
                                 } else {
                                     clearInterval(interval);
                                 }
-                            }, 100);
-                        }, 100);
+                            }, speed);
+                        }, speed);
                     } else if (countOfNull == 0) {
                         setTimeout(() => {
                             // 2 element pill
@@ -946,14 +1006,23 @@ export default class Game {
                                         clearInterval(interval);
                                     }
                                 }
-                            }, 100);
-                        }, 100);
+                            }, speed);
+                        }, speed);
                     }
                 }
             }
         }
+
+        setTimeout(() => {
+            this.stopAnimation = false;
+        }, 200);
     };
 
+    /**
+     * Funkcja do konca gry - zwyciestwo
+     * 
+     * @memberof Game
+     */
     stageCompleted = () => {
         let stage_completed = document.createElement("div");
         stage_completed.classList.add("stage_completed");
@@ -964,6 +1033,12 @@ export default class Game {
         this.stopAnimation = true;
     };
 
+
+    /**
+     * Funkcja do konca gry - przegrana
+     * 
+     * @memberof Game
+     */
     gameOver = () => {
         let doctor_lost = document.getElementById("doctor") as HTMLElement;
         doctor_lost.style.backgroundImage = "url(./img/doctor/doctor_lost.png)";

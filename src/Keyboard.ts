@@ -112,6 +112,18 @@ function keyDown() {
             }
         }
     } else {
+        if ((Math.max(firstX, secondX) + 1 > 7 || game.board[firstY][firstX + 1] != 0 || game.board[secondY][secondX + 1] != 0) && game.board[firstY][firstX - 1] == 0 && game.board[secondY][secondX - 1] == 0) {
+            console.log("przy scianie");
+            firstPill.style.left = (parseFloat(firstPill.style.left) - size) + "px";
+            secondPill.style.left = (parseFloat(secondPill.style.left) - size) + "px";
+
+            game.pill!.firstElement.position.x--;
+            game.pill!.secondElement.position.x--;
+
+            firstX = game.pill!.firstElement.position.x;
+            secondX = game.pill!.secondElement.position.x;
+        }
+
         if (firstY > secondY) {
             console.log("2 -> 3");
 
@@ -182,6 +194,18 @@ function keyUp() {
             }
         }
     } else {
+        if ((Math.min(firstX, secondX) - 1 < 0 || game.board[firstY][firstX - 1] != 0 || game.board[secondY][secondX - 1]) && game.board[firstY][firstX + 1] == 0 && game.board[secondY][secondX + 1] == 0) {
+            console.log("przy scianie");
+            firstPill.style.left = (parseFloat(firstPill.style.left) + size) + "px";
+            secondPill.style.left = (parseFloat(secondPill.style.left) + size) + "px";
+
+            game.pill!.firstElement.position.x++;
+            game.pill!.secondElement.position.x++;
+
+            firstX = game.pill!.firstElement.position.x;
+            secondX = game.pill!.secondElement.position.x;
+        }
+
         if (firstY < secondY) {
             //console.log("2 -> 3");
 
