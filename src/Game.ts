@@ -4,28 +4,28 @@ import startCheckingForInput from "./Keyboard";
 import { size } from "./Board";
 import Storage from "./Storage";
 
-interface virusPosition {
+export interface virusPosition {
     x: number;
     y: number;
 }
 
-interface viruses {
+export interface viruses {
     color: string;
     position: virusPosition;
 }
 
-interface StepData {
+export interface StepData {
     start: number | undefined;
     previousTimeStamp: number | undefined;
     done: boolean;
 }
 
-interface ToDeleteInterface {
+export interface ToDeleteInterface {
     row: number;
     column: number;
 }
 
-interface pillsPositions {
+export interface pillsPositions {
     firstX: number | null;
     firstY: number | null;
     secondX: number | null;
@@ -38,6 +38,10 @@ const virusColors = [
     "yellow"
 ];
 
+/**
+ * Główna klasa gry
+ * @class Game
+ */
 export default class Game {
     level: number;
     board: number[][];
@@ -94,7 +98,7 @@ export default class Game {
     }
 
     /**
-     * Starts the game.
+     * Startuje grę
      * @memberof Game
      * @method start
      * @returns {void}
@@ -372,10 +376,10 @@ export default class Game {
     };
 
     /**
+     * Zupdateuj pozycje elementow po okreslonym czasie
+     * 
      * @param firstElement
      * @param secondElement
-     * 
-     * Check if something is under or end of board
      */
     updateAfterTime = (firstElement: HTMLElement, secondElement: HTMLElement) => {
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
@@ -566,7 +570,7 @@ export default class Game {
     };
 
     /**
-     * Checks if there are any rows and columns to delete
+     * Sprawdz rzedy i kolumny do usuniecia
      * 
      * @memberof Game
      * @returns {void}
@@ -639,7 +643,7 @@ export default class Game {
 
 
     /**
-     * Deletes rows and columns with animation
+     * Usuwanie rzedy i kolumn z animacja
      * 
      * @memberof Game
      * @returns {void}

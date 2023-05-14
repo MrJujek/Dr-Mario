@@ -1,17 +1,17 @@
 import { size } from "./Board";
 
-interface PillClassInterface {
+export interface PillClassInterface {
     pill: PillInterface;
     pillColors: string[];
     getPill(): PillInterface;
 }
 
-interface PillPositionInterface {
+export interface PillPositionInterface {
     x: number;
     y: number;
 }
 
-interface PillElementInterface {
+export interface PillElementInterface {
     color: string;
     position: PillPositionInterface;
 }
@@ -27,6 +27,9 @@ const pillColors = [
     "yellow"
 ];
 
+/**
+ * Klasa reprezentujaca tabletki
+ */
 export default class Pill implements PillClassInterface {
     pill: PillInterface;
     pillColors: string[];
@@ -55,6 +58,9 @@ export default class Pill implements PillClassInterface {
         }
     }
 
+    /**
+     * Funkcja tworzaca podglad tabletki
+     */
     previewPill() {
         let firstPillElement = document.createElement("div");
         firstPillElement.id = "preview_first";
@@ -74,6 +80,12 @@ export default class Pill implements PillClassInterface {
         document.body.append(secondPillElement);
     }
 
+    /**
+     * Funkcja losujaca kolory tabletki i ustawiajaca ja na planszy
+     * @param color1 
+     * @param color2 
+     * @returns 
+     */
     getPill(color1?: string, color2?: string) {
         let firstPillElement = document.createElement("div");
         firstPillElement.id = "pill_first";
@@ -109,6 +121,9 @@ export default class Pill implements PillClassInterface {
         return this.pill;
     }
 
+    /**
+     * Funkcja animujaca ruch tabletki do butelki
+     */
     movePreview() {
         let frame = 0;
         let animation = setInterval(() => {
@@ -137,6 +152,12 @@ export default class Pill implements PillClassInterface {
     }
 };
 
+/**
+ * Funkcja zwracajaca url do grafiki dla tabletki
+ * @param color 
+ * @param direction 
+ * @returns css url do grafiki
+ */
 export function getImg(color: string, direction: string) {
     return `url(./img/pill/${color}_${direction}.png)`;
 }

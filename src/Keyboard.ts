@@ -2,6 +2,11 @@ import { game } from "./main";
 import { getImg } from "./Pill";
 import { size } from "./Board";
 
+/**
+ * Funkcja obsługująca klikanie klawiszy na klawiaturze
+ * 
+ * @returns {void}
+ */
 export default function startCheckingForInput() {
     window.addEventListener("keydown", (event) => {
         let pill = Array.from(document.querySelectorAll<HTMLElement>(".pill"));
@@ -35,6 +40,10 @@ export default function startCheckingForInput() {
     });
 }
 
+/**
+ * Kiedy naciśniemy klawisz w lewo, to przesuwamy lek w lewo
+ * @param pill 
+ */
 function keyLeft(pill: HTMLElement[]) {
     //console.log("left");
 
@@ -54,6 +63,10 @@ function keyLeft(pill: HTMLElement[]) {
     }
 }
 
+/**
+ * Kiedy naciśniemy klawisz w prawo, to przesuwamy lek w prawo
+ * @param pill 
+ */
 function keyRight(pill: HTMLElement[]) {
     //console.log("right");
 
@@ -72,6 +85,9 @@ function keyRight(pill: HTMLElement[]) {
     }
 }
 
+/**
+ * Kiedy naciśniemy klawisz w dół, to obracamy lek
+ */
 function keyDown() {
     // console.log("down");
 
@@ -85,7 +101,7 @@ function keyDown() {
 
     if (firstY == secondY) {
         if (firstX < secondX) {
-            console.log("1 -> 2");
+            //console.log("1 -> 2");
 
             if (firstY - 1 >= 0 && game.board[firstY - 1][firstX] == 0) {
                 secondPill.style.top = (parseFloat(secondPill.style.top) - size) + "px";
@@ -98,7 +114,7 @@ function keyDown() {
                 secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "up");
             }
         } else {
-            console.log("3 -> 4");
+            //console.log("3 -> 4");
 
             if (secondY - 1 >= 0 && game.board[secondY - 1][secondX] == 0) {
                 firstPill.style.left = (parseFloat(firstPill.style.left) - size) + "px";
@@ -112,8 +128,9 @@ function keyDown() {
             }
         }
     } else {
+        // Jeżeli przy ścianie lub blokuje to spróbuj "odbić się"
         if ((Math.max(firstX, secondX) + 1 > 7 || game.board[firstY][firstX + 1] != 0 || game.board[secondY][secondX + 1] != 0) && game.board[firstY][firstX - 1] == 0 && game.board[secondY][secondX - 1] == 0) {
-            console.log("przy scianie");
+            //console.log("przy scianie");
             firstPill.style.left = (parseFloat(firstPill.style.left) - size) + "px";
             secondPill.style.left = (parseFloat(secondPill.style.left) - size) + "px";
 
@@ -125,7 +142,7 @@ function keyDown() {
         }
 
         if (firstY > secondY) {
-            console.log("2 -> 3");
+            //console.log("2 -> 3");
 
             if (firstX + 1 <= 7 && game.board[firstY][firstX + 1] == 0) {
                 firstPill.style.left = (parseFloat(firstPill.style.left) + size) + "px";
@@ -138,7 +155,7 @@ function keyDown() {
                 secondPill.style.backgroundImage = getImg(game.pill!.secondElement.color, "left");
             }
         } else {
-            console.log("4 -> 1");
+            //console.log("4 -> 1");
 
             if (secondX + 1 <= 7 && game.board[secondY][secondX + 1] == 0) {
                 firstPill.style.top = (parseFloat(firstPill.style.top) + size) + "px";
@@ -154,6 +171,9 @@ function keyDown() {
     }
 }
 
+/**
+ * Kiedy naciśniemy klawisz w górę, to obracamy lek
+ */
 function keyUp() {
     //console.log("up");
 
@@ -194,8 +214,9 @@ function keyUp() {
             }
         }
     } else {
+        // Jeżeli przy ścianie lub blokuje to spróbuj "odbić się"
         if ((Math.min(firstX, secondX) - 1 < 0 || game.board[firstY][firstX - 1] != 0 || game.board[secondY][secondX - 1]) && game.board[firstY][firstX + 1] == 0 && game.board[secondY][secondX + 1] == 0) {
-            console.log("przy scianie");
+            //console.log("przy scianie");
             firstPill.style.left = (parseFloat(firstPill.style.left) + size) + "px";
             secondPill.style.left = (parseFloat(secondPill.style.left) + size) + "px";
 

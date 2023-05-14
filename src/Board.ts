@@ -1,4 +1,5 @@
-interface BoardClassInterface {
+
+export interface BoardClassInterface {
     board: number[][];
     makeBoard(rows: number, columns: number): void;
     getBoard(): number[][];
@@ -6,6 +7,9 @@ interface BoardClassInterface {
 
 export const size = 16;
 
+/**
+ * Klasa reprezentujaca plansze
+ */
 export default class Board implements BoardClassInterface {
     board: number[][] = [[]];
 
@@ -20,7 +24,22 @@ export default class Board implements BoardClassInterface {
         this.makeBoard(rows, columns);
     }
 
+    /**
+     * Tworzenie planszy
+     * @param rows 
+     * @param columns 
+     */
     makeBoard(rows: number, columns: number) {
+        /*
+        Oznaczenia pól w tablicy:
+        0 - puste pole
+        2 - lek czerwony
+        3 - lek niebieski
+        4 - lek żółty
+        5 - virus czerwony
+        6 - virus niebieski
+        7 - virus żółty
+        */
         let board = document.getElementById("board") as HTMLElement;
 
         for (let i = 0; i < rows; i++) {
@@ -44,13 +63,3 @@ export default class Board implements BoardClassInterface {
         return this.board;
     }
 }
-
-/*
-    0 - puste pole
-    2 - lek czerwony
-    3 - lek niebieski
-    4 - lek żółty
-    5 - virus czerwony
-    6 - virus niebieski
-    7 - virus żółty
-*/

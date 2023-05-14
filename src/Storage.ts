@@ -1,12 +1,18 @@
-interface storateClassInterface {
+export interface storateClassInterface {
     previousHighScore: number;
     loadHighScore: () => void;
     updateScore: (score: number) => void;
 }
 
+/**
+ * Klasa reprezentujaca local storage
+ */
 export default class Storage implements storateClassInterface {
     previousHighScore = 0;
 
+    /**
+     * Wczytywanie najlepszego wyniku
+     */
     loadHighScore = () => {
         //console.log("loadHighScore");
 
@@ -36,6 +42,11 @@ export default class Storage implements storateClassInterface {
         }
     };
 
+    /**
+     * Aktualizacja wyniku
+     * 
+     * @param score 
+     */
     updateScore = (score: number) => {
         if (score > this.previousHighScore) {
             this.previousHighScore = score;
