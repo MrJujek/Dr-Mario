@@ -1,4 +1,5 @@
 import { size } from "./Board";
+import { game } from "./main";
 
 export interface PillClassInterface {
     pill: PillInterface;
@@ -127,6 +128,18 @@ export default class Pill implements PillClassInterface {
     movePreview() {
         let frame = 0;
         let animation = setInterval(() => {
+            if (game.board[0][3] != 0 || game.board[0][4] != 0) {
+                game.isGameOver = true;
+            }
+
+            if (game.isGameOver) {
+                clearInterval(animation)
+                document.querySelectorAll(".preview_pill").forEach((element) => {
+                    element.remove();
+                });
+                return
+            };
+
             if (frame == 0) {
                 (document.getElementById("doctor") as HTMLElement).style.backgroundImage = "url('../img/doctor/doctor_throw.png')";
             }

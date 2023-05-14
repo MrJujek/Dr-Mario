@@ -204,14 +204,12 @@ export default class Game {
             return;
         }
 
-        if (this.isPillOnBoard === false) {
+        if (this.isPillOnBoard === false && this.isGameOver === false) {
             this.animateThrow = true;
             if (this.nextColor1 && this.nextColor2) {
                 this.stopAnimation = true;
 
                 setTimeout(() => {
-                    console.log("XXXX");
-
                     this.checkForDelete();
                 }, 200);
 
@@ -318,7 +316,7 @@ export default class Game {
         }
 
 
-        if (this.stepData.done == true) {
+        if (this.stepData.done == true && this.isGameOver === false) {
             this.isPillOnBoard = false;
             this.moveFastDown = false;
 
@@ -365,8 +363,6 @@ export default class Game {
                 secondY: this.pill!.secondElement.position.y
             });
 
-            // console.log("can fall?", this.checkForFall());
-
             this.checkForDelete();
 
             this.pill = null;
@@ -382,6 +378,11 @@ export default class Game {
      * @param secondElement
      */
     updateAfterTime = (firstElement: HTMLElement, secondElement: HTMLElement) => {
+        if (this.isGameOver === true) {
+            this.gameOver();
+            return;
+        }
+
         if (this.pill!.firstElement.position.y >= 15 || this.pill!.secondElement.position.y >= 15) {
             this.stepData.done = true;
 
@@ -630,7 +631,7 @@ export default class Game {
         // Jezeli jest cos do usuniecia
         if (this.toDelete.length > 0) {
             // zbic
-
+            this.stopAnimation = true;
             this.deleteAnimation();
 
             // Jesli nie ma nic do usuniecia
@@ -783,8 +784,6 @@ export default class Game {
      * @returns {false} jesli nie moga spasc
      */
     checkForFall = () => {
-        // console.log("checkForFall");
-
         for (let i = 0; i < this.pillsOnBoard.length; i++) {
             let countOfNull = 0;
             if (this.pillsOnBoard[i].firstX == null) {
@@ -1018,6 +1017,7 @@ export default class Game {
         }
 
         setTimeout(() => {
+            this.checkForDelete();
             this.stopAnimation = false;
         }, 200);
     };
@@ -1031,6 +1031,10 @@ export default class Game {
         let stage_completed = document.createElement("div");
         stage_completed.classList.add("stage_completed");
         document.body.appendChild(stage_completed);
+
+        document.querySelectorAll(".pill").forEach((element) => {
+            element.remove();
+        });
 
         this.isStageCompleted = true;
 
@@ -1050,6 +1054,14 @@ export default class Game {
         let game_over = document.createElement("div");
         game_over.classList.add("game_over");
         document.body.appendChild(game_over);
+
+        document.querySelectorAll(".preview_pill").forEach((element) => {
+            element.remove();
+        });
+
+        document.querySelectorAll(".pill").forEach((element) => {
+            element.remove();
+        });
 
         this.isGameOver = true;
 
