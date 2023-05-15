@@ -156,13 +156,26 @@ export default class Game {
                 }
             });
 
-            (document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement).style.backgroundImage = `url(./img/virus/covid_${virusColor}.png)`;
+            let virus = document.getElementById(`square_${virusY}-${virusX}`) as HTMLElement
+            virus.style.backgroundImage = `url(./img/virus/${virusColor}_1.png)`;
+            virus.classList.add("virus_element");
         }
 
         let interval = setInterval(() => {
             if (this.isStageCompleted === true) {
                 clearInterval(interval);
             }
+
+            // animate viruses on board
+            let virus_elements = document.querySelectorAll<HTMLElement>(".virus_element")
+            for (let i = 0; i < virus_elements.length; i++) {
+                if (virus_elements[i]["style"].backgroundImage.includes("1.png")) {
+                    virus_elements[i]["style"].backgroundImage = (virus_elements[i]["style"].backgroundImage).slice(0, -7) + '2.png")';
+                } else {
+                    virus_elements[i]["style"].backgroundImage = (virus_elements[i]["style"].backgroundImage).slice(0, -7) + '1.png")';
+                }
+            }
+
             this.animateViruses();
         }, 400);
 
@@ -655,6 +668,7 @@ export default class Game {
         for (let i = 0; i < this.toDelete.length; i++) {
             let color = this.board[this.toDelete[i].row][this.toDelete[i].column];
             let square = document.getElementById(`square_${this.toDelete[i].row}-${this.toDelete[i].column}`) as HTMLElement;
+            square.classList.remove("virus_element");
 
             switch (color) {
                 case 2:
@@ -835,6 +849,8 @@ export default class Game {
      * @returns {void}
      */
     fallAnimation = () => {
+        this.checkForDelete();
+
         let speed = 50;
 
         for (let y = 15; y >= 0; y--) {
