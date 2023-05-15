@@ -71,7 +71,7 @@ export default class Game {
         this.board = new Board(8, 16).getBoard();
         this.viruses = [];
 
-        this.level = 4
+        this.level = 1
 
         this.stepData = {
             start: undefined,
@@ -1049,6 +1049,12 @@ export default class Game {
         document.body.appendChild(stage_completed);
 
         document.querySelectorAll(".pill").forEach((element) => {
+            element.remove();
+        });
+
+        (document.getElementById("doctor") as HTMLElement).style.backgroundImage = "url(./img/doctor/doctor_1.png)";
+
+        document.querySelectorAll(".preview_pill").forEach((element) => {
             element.remove();
         });
 
