@@ -130,10 +130,16 @@ export default class Pill implements PillClassInterface {
         let animation = setInterval(() => {
             if (game.board[0][3] != 0 || game.board[0][4] != 0) {
                 game.isGameOver = true;
+                clearInterval(animation)
+
+                document.querySelectorAll(".preview_pill").forEach((element) => {
+                    element.remove();
+                });
             }
 
-            if (game.isGameOver) {
+            if (game.isGameOver || game.isStageCompleted) {
                 clearInterval(animation)
+
                 document.querySelectorAll(".preview_pill").forEach((element) => {
                     element.remove();
                 });

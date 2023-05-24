@@ -84,7 +84,7 @@ body {
     background-size: contain;
     top: calc(3.75 * 16px);
     left: calc(30 * 16px);
-    background-image: url('../img/doctor/doctor_keep.png');
+    background-image: url('../img/doctor/doctor_1.png');
 }
 
 .score {
@@ -125,4 +125,15 @@ body {
     top: calc(21 * 16px);
     left: calc(35 * 16px);
     background-color: black;
+}
+
+#start {
+    position: absolute;
+    width: 200px;
+    height: 110px;
+    top: 142px;
+    left: 240px;
+    background-image: url("../img/start.png");
+    background-size: cover;
+    cursor: pointer;
 }

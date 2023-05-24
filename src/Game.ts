@@ -71,7 +71,7 @@ export default class Game {
         this.board = new Board(8, 16).getBoard();
         this.viruses = [];
 
-        this.level = 1
+        this.level = 0
 
         this.stepData = {
             start: undefined,
@@ -302,7 +302,6 @@ export default class Game {
                 }, 1200);
                 this.isPillOnBoard = true;
                 this.stepData.done = false;
-
             }
         }
 
